@@ -1,0 +1,41 @@
+name: Refresh public edge catalog
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '47 2 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: public-edge-catalog
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    if: github.repository == 'AlamorNetwork/forouz'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: master
+          # Needed only for the scoped catalog push below. No third-party code is run.
+          persist-credentials: true
+      - name: Test collector
+        run: python3 -m unittest discover -s tools -p 'test_edge_catalog.py' -v
+      - name: Collect official and announced ranges with bounded edge observations
+        run: python3 tools/edge_catalog.py --probe --samples 8 --workers 4
+      - name: Commit only the public catalog
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- catalogs/edge-candidates.json
+          if git diff --cached --quiet; then exit 0; fi
+          test "$(git diff --cached --name-only)" = 'catalogs/edge-candidates.json'
+          git diff --cached --check
+          git commit -m 'data: refresh public CDN edge catalog'
+          git push origin HEAD:master

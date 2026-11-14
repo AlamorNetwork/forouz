@@ -4,6 +4,12 @@ Priority revised on 14 November 2026. The base Laboratory is already shipped in 
 
 ## P1: CDN scanner
 
+### P1a: public edge catalog, before client-side performance tests
+
+The user's clarified first delivery is a GitHub-hosted range/edge feed. [Collector and schema](../catalogs/README.md): official prefixes, recent BGP candidates and exact per-address HTTPS/header observations remain distinct. The bounded Python collector adapts the supplied script without a universal Cloudflare SNI, certificate bypass, host/subnet enumeration or whole-prefix health claims. The client will later consume this feed and test its own profile on its own network. No Android scanner UI or automatic Address modification is part of P1a.
+
+### P1b: Android consumer and selected-profile testing
+
 Select profiles, identify their CDN using DNS/CNAME, official service prefixes and TLS evidence, and request a bounded scan on the current network. Start with compatible Cloudflare/CloudFront WS+TLS and XHTTP+TLS profiles. Add GCore/Fastly with verified frontend and service adapters. Provider membership alone is not endpoint compatibility: Fastly uses domain-associated TLS configurations, while GCore documents its public IP list for origin allowlisting.
 
 Compare the original baseline and sampled same-service addresses. Preserve credentials, port, Host/SNI/authority, path, ALPN, ECH and extra settings. Unknown providers, split download routes and unsupported transports must remain explicit. Direct REALITY/RAW and AWG endpoints are not assumed to be CDN-substitutable.
@@ -45,4 +51,4 @@ Use unique periodic WorkManager work with network/data constraints and cancellat
 - [Xray Mux](https://xtls.github.io/en/config/outbound.html#muxobject)
 - [Iran routing datasets](https://github.com/Chocolate4U/Iran-v2ray-rules)
 
-**Not run:** implementation or runtime acceptance of P1–P4, live CDN scans, automatic profile changes, privileged device actions, scheduled Geo downloads, network/battery benchmarks or a new APK build. Current work is source/document research and reprioritization.
+**Not run:** Android implementation or runtime acceptance of P1b–P4, automatic profile changes, privileged device actions, scheduled Geo downloads, VPN performance/battery benchmarks or a new APK build. P1a's feed is independently produced; its observations do not establish end-user VPN connectivity.
