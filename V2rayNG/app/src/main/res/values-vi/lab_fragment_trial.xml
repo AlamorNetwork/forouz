@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_fragment_baseline">Thử: không phân mảnh</string>
+    <string name="lab_fragment_light">Thử: phân mảnh nhẹ</string>
+    <string name="lab_fragment_small">Thử: mảnh nhỏ hơn</string>
+    <string name="lab_fragment_variant_name">%1$s · %2$s</string>
+    <string name="lab_fragment_unavailable">Không thể tạo bản thử cho hồ sơ, kiểu truyền hoặc mặt nạ tùy chỉnh này.</string>
+    <string name="lab_fragment_saved">Đã tạo bản thử cục bộ. Chọn bản này rồi kết nối lại để kiểm tra.</string>
+</resources>

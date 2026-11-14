@@ -1,11 +1,13 @@
 package com.v2ray.ang.util
 
 import android.content.ClipData
+import android.content.ClipDescription
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.LocaleList
+import android.os.PersistableBundle
 import android.provider.Settings
 import android.util.Base64
 import android.util.Patterns
@@ -72,6 +74,22 @@ object Utils {
         } catch (e: Exception) {
             LogUtil.e(AppConfig.TAG, "Failed to set clipboard content", e)
         }
+    }
+
+    /** Android 13+ must not preview the private key carried by a native VPN configuration. */
+    fun setSensitiveClipboard(context: Context, label: String, content: String): Boolean = try {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText(label, content)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            clip.description.extras = PersistableBundle().apply {
+                putBoolean(ClipDescription.EXTRA_IS_SENSITIVE, true)
+            }
+        }
+        clipboard.setPrimaryClip(clip)
+        true
+    } catch (e: Exception) {
+        LogUtil.e(AppConfig.TAG, "Failed to copy native VPN configuration", e)
+        false
     }
 
     /**

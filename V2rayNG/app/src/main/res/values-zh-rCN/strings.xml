@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">v2rayNG</string>
+    <string name="app_name" translatable="false">FOROUZ</string>
     <string name="app_widget_name">开关</string>
     <string name="app_tile_name">开关</string>
     <string name="app_tile_first_use">初次使用此功能请先用 APP 添加配置</string>
@@ -14,7 +14,7 @@
     <string name="pull_down_to_refresh">请下拉刷新!</string>
 
     <!-- Notifications -->
-    <string name="notification_channel_service">v2rayNG 服务</string>
+    <string name="notification_channel_service">FOROUZ 服务</string>
     <string name="notification_channel_subscription_updates">订阅更新</string>
     <string name="notification_channel_connection_checks">连接检查</string>
     <string name="notification_action_stop_v2ray">停止</string>
@@ -563,4 +563,45 @@
     <string name="sub_info_open_page">打开订阅信息页面</string>
     <string name="sub_info_unlimited">无限制</string>
 
+
+    <!-- Lab14: opt-in active-connection monitoring. -->
+    <string name="health_title">Connection stability</string>
+    <string name="health_intro">Observe the active connection only. A failed HTTPS check is not proof of a VPN drop or filtering.</string>
+    <string name="health_setup">Monitor settings</string>
+    <string name="health_interval">Check interval</string>
+    <string name="health_seconds">%1$d seconds</string>
+    <string name="health_auto">Automatic recovery · Xray VPN only</string>
+    <string name="health_scope">Xray: local SOCKS outbound with routing rules; needs an enabled local proxy without authentication. Amnezia: owned VPN on Android 11+. Recovery is unavailable for Amnezia, root and proxy-only.</string>
+    <string name="health_confirm">Every %1$d seconds for up to 2 hours: at most 240 rounds / 480 small HTTPS requests. No 10 MB downloads. Control traffic still consumes data. Automatic recovery is off. Stopping monitoring leaves the VPN running.</string>
+    <string name="health_confirm_recovery">Every %1$d seconds for up to 2 hours: at most 240 rounds / 480 small HTTPS requests; no 10 MB download. After 3 failed rounds on a validated network, reset the same Xray VPN core. At most 3 attempts with 60/180/600-second backoff. Active transfers may break. Manual stop wins; a stopped VPN is never started.</string>
+    <string name="health_start">Start monitoring</string>
+    <string name="health_stop">Stop monitoring only</string>
+    <string name="health_running">Monitoring the active connection</string>
+    <string name="health_stale">No recent heartbeat; daemon state unknown. Stop monitoring to close this run.</string>
+    <string name="health_history">Last 5 monitoring runs</string>
+    <string name="health_empty">No monitoring history yet.</string>
+    <string name="health_running_record">Stored as running; not a live-service acknowledgement.</string>
+    <string name="health_ended">Monitoring limit reached</string>
+    <string name="health_cancelled">Monitoring stopped</string>
+    <string name="health_interrupted">Previous monitor interrupted</string>
+    <string name="health_error">Monitor command or history unavailable; no recovery confirmed.</string>
+    <string name="health_counts">Checks: %1$d · Failed: %2$d\nHTTPS requests: %3$d · Recovery attempts: %4$d</string>
+    <string name="health_event_note">Up to 120 recent events. Latency includes DNS/TCP/TLS. Sleep gaps are not measured uptime. No speed is inferred.</string>
+    <string name="health_latency">HTTPS response: %1$d ms</string>
+    <string name="health_wifi">Wi-Fi</string>
+    <string name="health_cellular">Mobile data</string>
+    <string name="health_ethernet">Ethernet</string>
+    <string name="health_other">Other / unknown network</string>
+    <string name="health_wait_vpn">Waiting for active VPN; no start requested</string>
+    <string name="health_wait_network">Waiting for physical internet / captive portal</string>
+    <string name="health_grace">Grace period after a session or network change</string>
+    <string name="health_ok">HTTPS check succeeded</string>
+    <string name="health_failed_check">HTTPS round failed; VPN may still be running</string>
+    <string name="health_unsupported">Monitoring unsupported with these mode settings</string>
+    <string name="health_changed">Connection changed; stale result discarded</string>
+    <string name="health_recovery">Recovery attempt reserved</string>
+    <string name="health_recovered">Core reset completed; awaiting next HTTPS check</string>
+    <string name="health_skipped">Recovery skipped: stopped, busy or changed</string>
+    <string name="health_recovery_failed">Core reset failed; no cold restart requested</string>
+    <string name="health_finished">Monitoring finished</string>
 </resources>

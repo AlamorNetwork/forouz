@@ -1,0 +1,21 @@
+{
+  "upstream_app_base": "57907cf354d9769200ed4717b4430d605abe0952",
+  "xray": {
+    "source_repository": "https://github.com/2dust/AndroidLibXrayLite",
+    "source_commit": "2ffe5f794a32ba15b122e177b5acffc6f11c4959",
+    "tag": "v26.10.31",
+    "url": "https://github.com/2dust/AndroidLibXrayLite/releases/download/v26.10.31/libv2ray.aar",
+    "sha256": "2efdf731b1ed624eb1cb0d5a4d0aa95c0672e89f9702226d1ba2dc90308630b6",
+    "size_bytes": 60031471
+  },
+  "hev": {
+    "source_repository": "https://github.com/heiher/hev-socks5-tunnel",
+    "source_commit": "c5584feca8f6df70ee53eb2879e034b849a3d15a",
+    "build_script": "compile-hevtun.sh",
+    "ndk": "30.0.16248370"
+  },
+  "amnezia": {
+    "provenance": "V2rayNG/amnezia/NATIVE-PROVENANCE.json",
+    "prepare_script": "tools/prepare-amnezia.py"
+  }
+}

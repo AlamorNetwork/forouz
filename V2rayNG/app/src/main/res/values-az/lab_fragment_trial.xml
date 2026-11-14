@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_fragment_baseline">Sınaq: parçalanma yoxdur</string>
+    <string name="lab_fragment_light">Sınaq: yüngül parçalanma</string>
+    <string name="lab_fragment_small">Sınaq: kiçik hissələr</string>
+    <string name="lab_fragment_variant_name">%1$s · %2$s</string>
+    <string name="lab_fragment_unavailable">Bu profil, nəqliyyat növü və ya xüsusi maska üçün sınaq mümkün deyil.</string>
+    <string name="lab_fragment_saved">Yerli sınaq yaradıldı. Onu seçin və yoxlamaq üçün yenidən qoşulun.</string>
+</resources>

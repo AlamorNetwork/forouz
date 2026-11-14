@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_duration">%1$02d:%2$02d:%3$02d</string>
+    <string name="lab_notification_rates">↓ %1$s  •  ↑ %2$s</string>
+    <string name="lab_notification_permission">Cần quyền VPN. Mở ứng dụng để kết nối.</string>
+    <string name="lab_notification_disconnected">Đã ngắt. Nhấn Kết nối để kết nối lại.</string>
+    <string name="lab_open_app">Mở ứng dụng</string>
+    <string name="lab_traffic_waiting">Đang chờ mẫu lưu lượng…</string>
+    <string name="lab_traffic_unavailable">Không có thống kê lưu lượng cho kết nối này.</string>
+    <string name="lab_download">Tải xuống</string>
+    <string name="lab_upload">Tải lên</string>
+    <string name="lab_total_bytes">Tổng %1$s</string>
+    <string name="lab_chart_description">Lưu lượng Xray trong 90 giây. Tải xuống %1$s, tải lên %2$s.</string>
+    <string name="lab_traffic_window">90 giây • Thang %1$s</string>
+    <string name="lab_traffic_scope">Lưu lượng Xray qua proxy và trực tiếp. Nét liền: tải xuống; nét đứt: tải lên. Tốc độ byte, không phải kiểm tra tốc độ.</string>
+    <string name="lab_uptime">Đã kết nối %1$s</string>
+</resources>

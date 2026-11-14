@@ -34,6 +34,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
@@ -42,23 +44,34 @@ import libv2ray.CoreCallbackHandler
 import libv2ray.CoreController
 import libv2ray.ProcessFinder
 import java.lang.ref.SoftReference
+import java.lang.ref.WeakReference
 import java.net.InetSocketAddress
 
 object CoreServiceManager {
 
-    private val coreController: CoreController = CoreNativeManager.newCoreController(CoreCallback())
+    private val coreController: CoreController by lazy { CoreNativeManager.newCoreController(CoreCallback()) }
     private val mMsgReceive = ReceiveMessageHandler()
     private var currentConfig: ProfileItem? = null
+    // Daemon memory only: a warm reset must replay the admitted runtime, not newer edited settings.
+    @Volatile private var runtimeContent: String? = null
+    @Volatile private var runtimeTunFd: Int? = null
     private var processFinder: XrayProcessFinder? = null
     private var browserDialer: IDialerService? = null
-    private var networkMonitor: NetworkMonitor? = null
+    @Volatile private var networkMonitor: NetworkMonitor? = null
+    private val testAdmission = Any()
     private val connectionTestScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    @Volatile private var nativeStopJob: Job? = null
+    private var restartJob: Job? = null
+    private var stoppedService: WeakReference<Service>? = null
 
     @Volatile
     private var isReloading = false
 
     /** Tun descriptor the core was started with, null in the proxy only and root run modes. */
     private var currentVpnInterface: ParcelFileDescriptor? = null
+
+    @Volatile
+    var externalVpnControl: SoftReference<com.v2ray.ang.contracts.ExternalVpnControl>? = null
 
     var serviceControl: SoftReference<ServiceControl>? = null
         set(value) {
@@ -75,13 +88,13 @@ object CoreServiceManager {
      * Checks if the V2Ray service is running.
      * @return True if the service is running, false otherwise.
      */
-    fun isRunning() = coreController.isRunning
+    fun isRunning() = externalVpnControl?.get()?.engineRunning ?: coreController.isRunning
 
     /**
      * Gets the name of the currently running server.
      * @return The name of the running server.
      */
-    fun getRunningServerName() = currentConfig?.remarks.orEmpty()
+    fun getRunningServerName() = externalVpnControl?.get()?.runningProfileName ?: currentConfig?.remarks.orEmpty()
 
     /**
      * Refer to the official documentation for [registerReceiver](https://developer.android.com/reference/androidx/core/content/ContextCompat#registerReceiver(android.content.Context,android.content.BroadcastReceiver,android.content.IntentFilter,int):
@@ -89,6 +102,7 @@ object CoreServiceManager {
      * Starts the V2Ray core service.
      */
     fun startCoreLoop(vpnInterface: ParcelFileDescriptor?): Boolean {
+        if (nativeStopJob?.isActive == true) return false
         if (isRunning()) {
             LogUtil.w(AppConfig.TAG, "StartCore-Manager: Core already running")
             return false
@@ -99,6 +113,7 @@ object CoreServiceManager {
             LogUtil.e(AppConfig.TAG, "StartCore-Manager: Service is null")
             return false
         }
+        stoppedService = null
 
         try {
             doStartCoreLoop(service, vpnInterface)
@@ -130,9 +145,8 @@ object CoreServiceManager {
         val guid = MmkvManager.getSelectServer() ?: error("No server selected")
         val config = MmkvManager.decodeServerConfig(guid) ?: error("Failed to decode server config")
 
-        LogUtil.i(AppConfig.TAG, "StartCore-Manager: Starting core loop for ${config.remarks}")
+        LogUtil.i(AppConfig.TAG, "Xray mode=${service.javaClass.simpleName} setup: profile=$guid")
         val result = CoreConfigManager.getV2rayConfig(service, guid)
-        LogUtil.d(AppConfig.TAG, result.content)
         if (!result.status) {
             error(result.errorMessage.ifBlank { "Failed to get V2Ray config" })
         }
@@ -177,9 +191,21 @@ object CoreServiceManager {
             else -> {}
         }
 
+        runtimeTunFd = tunFd
+        runtimeContent = result.content
         if (!isReload) {
             MessageHelper.sendMsg2UI(service, AppConfig.MSG_STATE_START_SUCCESS, "")
         }
+        NotificationManager.markConnected()
+        // Advertise only the admitted runtime listener. Edited settings are not daemon authority.
+        val privacyPort = if (service is com.v2ray.ang.service.CoreVpnService)
+            try { healthSocksPort() } catch (e: Exception) {
+                LogUtil.e(AppConfig.TAG, "Privacy mode=xray phase=runtime-route profile=$guid", IllegalStateException(e.javaClass.simpleName))
+                null
+            } else null
+        ConnectionTelemetry.start(service, guid, XrayTrafficAvailability.enabled(result.content),
+            if (privacyPort != null) com.v2ray.ang.core.privacy.PrivacyRoute.XRAY_SOCKS
+                else com.v2ray.ang.core.privacy.PrivacyRoute.UNAVAILABLE, privacyPort)
         NotificationManager.startSpeedNotification()
         LogUtil.i(AppConfig.TAG, "StartCore-Manager: Core started successfully")
     }
@@ -190,21 +216,54 @@ object CoreServiceManager {
      * @return True if the core was stopped successfully, false otherwise.
      */
     fun stopCoreLoop(): Boolean {
-        connectionTestScope.coroutineContext.cancelChildren()
         val service = getService() ?: return false
+        if (stoppedService?.get() === service) return true
+        if (nativeStopJob?.isActive == true) return true
+        stoppedService = WeakReference(service)
+        connectionTestScope.coroutineContext.cancelChildren()
 
         networkMonitor?.unregister()
         networkMonitor = null
         currentVpnInterface = null
+        runtimeContent = null
+        runtimeTunFd = null
+        ConnectionTelemetry.stop(service)
+        val reconnectReady = NotificationManager.cancelNotification(reconnect = false)
 
         if (isRunning()) {
-            CoroutineScope(Dispatchers.IO).launch {
+            val stopOwner = SupervisorJob()
+            nativeStopJob = stopOwner
+            CoroutineScope(stopOwner + Dispatchers.IO).launch {
+                var stopped = false
                 try {
-                    coreController.stopLoop()
+                    ConnectionTelemetry.withoutCounterRead { coreController.stopLoop() }
+                    stopped = !coreController.isRunning
                 } catch (e: Exception) {
-                    LogUtil.e(AppConfig.TAG, "StartCore-Manager: Failed to stop V2Ray loop", e)
+                    LogUtil.e(AppConfig.TAG, "Xray mode=${service.javaClass.simpleName} teardown: native stop failed", e)
+                } finally {
+                    nativeStopJob = null
+                    try {
+                        withContext(Dispatchers.Main) {
+                            if (stoppedService?.get() === service) {
+                                if (stopped) {
+                                    MessageHelper.sendMsg2UI(service, AppConfig.MSG_STATE_STOP_SUCCESS, "")
+                                    if (reconnectReady) NotificationManager.showReconnect(service)
+                                } else {
+                                    MessageHelper.sendMsg2UI(service, AppConfig.MSG_STATE_START_FAILURE,
+                                        service.getString(com.v2ray.ang.R.string.toast_services_failure))
+                                }
+                            }
+                        }
+                    } catch (e: Exception) {
+                        LogUtil.e(AppConfig.TAG, "Xray mode=${service.javaClass.simpleName} teardown: notify failed", e)
+                    } finally {
+                        stopOwner.cancel()
+                    }
                 }
             }
+        } else {
+            MessageHelper.sendMsg2UI(service, AppConfig.MSG_STATE_STOP_SUCCESS, "")
+            if (reconnectReady) NotificationManager.showReconnect(service)
         }
 
         // Close existing browser dialer
@@ -213,9 +272,6 @@ object CoreServiceManager {
             browserDialer!!.stop()
             browserDialer = null
         }
-
-        MessageHelper.sendMsg2UI(service, AppConfig.MSG_STATE_STOP_SUCCESS, "")
-        NotificationManager.cancelNotification()
 
         try {
             service.unregisterReceiver(mMsgReceive)
@@ -236,11 +292,16 @@ object CoreServiceManager {
         if (networkMonitor != null) return
 
         val connectivity = service.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return
-        networkMonitor = NetworkMonitor(
+        lateinit var monitor: NetworkMonitor
+        monitor = NetworkMonitor(
             connectivity = connectivity,
-            onUnderlyingNetworksChanged = { networks -> serviceControl?.get()?.setUnderlyingNetworks(networks) },
-            onHandover = { reloadCore() },
-        ).also { it.register() }
+            onUnderlyingNetworksChanged = { networks ->
+                if (networkMonitor === monitor && monitor.isActive) serviceControl?.get()?.setUnderlyingNetworks(networks)
+            },
+            onHandover = { reloadCore(monitor) },
+        )
+        networkMonitor = monitor
+        monitor.register()
     }
 
     /**
@@ -252,30 +313,78 @@ object CoreServiceManager {
      *
      * @return True if the core is running again.
      */
-    private fun reloadCore(): Boolean {
-        if (isReloading) return false
+    @Synchronized private fun reloadCore(monitor: NetworkMonitor): Boolean {
+        if (networkMonitor !== monitor || !monitor.isActive) return false
         val service = getService() ?: return false
-        if (!isRunning()) return false
-
-        return try {
-            val tunFd = currentVpnInterface
-
+        val token = com.v2ray.ang.core.health.HealthRecoveryFence.token()
+        synchronized(testAdmission) {
+            if (isReloading || !isRunning() || connectionTestScope.coroutineContext[Job]?.children?.any { !it.isCompleted } == true) return false
             isReloading = true
-            connectionTestScope.coroutineContext.cancelChildren()
-            LogUtil.i(AppConfig.TAG, "StartCore-Manager: Core reload start...")
-
-            coreController.stopLoop()
-            launchCore(service, tunFd, isReload = true)
-
-            LogUtil.i(AppConfig.TAG, "StartCore-Manager: Core reload finished")
-            true
+        }
+        return try {
+            val tun = currentVpnInterface
+            ConnectionTelemetry.withoutCounterRead {
+                if (networkMonitor !== monitor || !monitor.isActive || !com.v2ray.ang.core.health.HealthRecoveryFence.permits(token) || !isRunning()) return@withoutCounterRead false
+                ConnectionTelemetry.stop(service)
+                coreController.stopLoop()
+                if (!com.v2ray.ang.core.health.HealthRecoveryFence.permits(token)) return@withoutCounterRead false
+                launchCore(service, tun, isReload = true)
+                if (!com.v2ray.ang.core.health.HealthRecoveryFence.permits(token)) {
+                    ConnectionTelemetry.stop(service)
+                    coreController.stopLoop()
+                    false
+                } else isRunning()
+            }
         } catch (e: Exception) {
-            val message = e.message?.takeUnless { it.isBlank() } ?: e.javaClass.simpleName
-            LogUtil.e(AppConfig.TAG, "StartCore-Manager: Failed to reload core: $message", e)
-            MessageHelper.sendMsg2UI(service, AppConfig.MSG_STATE_START_FAILURE, message)
+            LogUtil.e(AppConfig.TAG, "Xray mode=${service.javaClass.simpleName} phase=handover profile=${ConnectionTelemetry.snapshot()?.profileGuid.orEmpty()}",
+                IllegalStateException(e.javaClass.simpleName))
+            if (serviceControl?.get()?.getService() === service && com.v2ray.ang.core.health.HealthRecoveryFence.permits(token)) serviceControl?.get()?.stopService()
             false
-        } finally {
-            isReloading = false
+        } finally { isReloading = false }
+    }
+
+    /** Called only from the daemon monitor on IO; read the actual admitted SOCKS inbound. */
+    internal fun healthSocksPort(): Int? = runtimeContent?.let { com.v2ray.ang.core.health.healthSocksPort(it) }
+
+    /** IO-only warm recovery retains the current VPN descriptor and telemetry session. */
+    internal suspend fun recoverHealth(session: String, guid: String, revision: String, stopToken: Long,
+        stillCurrent: () -> Boolean): com.v2ray.ang.core.health.HealthRecoveryResult = withContext(Dispatchers.IO) {
+        synchronized(this@CoreServiceManager) recovery@ {
+            val skipped = com.v2ray.ang.core.health.HealthRecoveryResult.SKIPPED
+            val service = getService() as? com.v2ray.ang.service.CoreVpnService ?: return@recovery skipped
+            fun eligible(): Boolean {
+                val snapshot = ConnectionTelemetry.snapshot()
+                return snapshot?.running == true && snapshot.sessionId == session && snapshot.profileGuid == guid &&
+                    MmkvManager.getSelectServer() == guid && externalVpnControl?.get() == null &&
+                    com.v2ray.ang.core.health.HealthRecoveryFence.permits(stopToken) && currentVpnInterface != null &&
+                    currentConfig?.let { com.v2ray.ang.core.lab.LabRecords.revision(it) == revision && it.browserDialerMode.isNullOrBlank() } == true &&
+                    MmkvManager.decodeServerConfig(guid)?.let { com.v2ray.ang.core.lab.LabRecords.revision(it) == revision } == true
+            }
+            if (!stillCurrent() || !eligible() || !isRunning()) return@recovery skipped
+            val content = runtimeContent ?: return@recovery skipped
+            val fd = runtimeTunFd ?: return@recovery skipped
+            synchronized(testAdmission) {
+                if (isReloading || connectionTestScope.coroutineContext[Job]?.children?.any { !it.isCompleted } == true) return@recovery skipped
+                isReloading = true
+            }
+            try {
+                ConnectionTelemetry.withoutCounterRead {
+                    if (!stillCurrent() || !eligible() || !isRunning()) return@withoutCounterRead skipped
+                    if (runtimeContent !== content || runtimeTunFd != fd) return@withoutCounterRead skipped
+                    com.v2ray.ang.core.health.guardedWarmRecovery(
+                        allowed = { com.v2ray.ang.core.health.HealthRecoveryFence.permits(stopToken) },
+                        stop = { coreController.stopLoop() },
+                        start = { coreController.startLoop(content, fd) },
+                        running = { coreController.isRunning })
+                }.also {
+                    if (it == com.v2ray.ang.core.health.HealthRecoveryResult.FAILED &&
+                        serviceControl?.get()?.getService() === service && com.v2ray.ang.core.health.HealthRecoveryFence.permits(stopToken)) service.stopService()
+                }
+            } catch (e: Exception) {
+                LogUtil.e(AppConfig.TAG, "Xray mode=VPN phase=health-recovery profile=$guid", IllegalStateException(e.javaClass.simpleName))
+                if (serviceControl?.get()?.getService() === service && com.v2ray.ang.core.health.HealthRecoveryFence.permits(stopToken)) service.stopService()
+                com.v2ray.ang.core.health.HealthRecoveryResult.FAILED
+            } finally { isReloading = false }
         }
     }
 
@@ -284,6 +393,7 @@ object CoreServiceManager {
      * Go side format: tag,direction,value;tag,direction,value;
      */
     fun queryAllOutboundTrafficStats(): List<OutboundTrafficStat> {
+        if (externalVpnControl?.get() != null) return emptyList()
         // The stats manager is gone once the core stops, querying it then reaches into freed state.
         if (!isRunning()) return emptyList()
 
@@ -316,11 +426,11 @@ object CoreServiceManager {
      * Tests with primary URL first, then falls back to alternative URL if needed.
      * Also fetches remote IP information if the delay test was successful.
      */
-    private fun measureV2rayDelay(requestId: String) {
-        val service = getService() ?: return
+    private fun measureV2rayDelay(requestId: String) = synchronized(testAdmission) {
+        val service = getService() ?: return@synchronized
         if (!isRunning() || isReloading) {
             MessageHelper.sendMsg2UI(service, AppConfig.MSG_MEASURE_DELAY_CANCEL, "", requestId)
-            return
+            return@synchronized
         }
 
         connectionTestScope.coroutineContext.cancelChildren()
@@ -461,11 +571,13 @@ object CoreServiceManager {
             val serviceControl = serviceControl?.get() ?: return
             when (intent?.getIntExtra("key", 0)) {
                 AppConfig.MSG_REGISTER_CLIENT -> {
+                    if (isOrderedBroadcast) resultCode = Activity.RESULT_OK
                     if (isRunning()) {
                         MessageHelper.sendMsg2UI(serviceControl.getService(), AppConfig.MSG_STATE_RUNNING, "")
                     } else {
                         MessageHelper.sendMsg2UI(serviceControl.getService(), AppConfig.MSG_STATE_NOT_RUNNING, "")
                     }
+                    ConnectionTelemetry.sendCurrent(serviceControl.getService())
                 }
 
                 AppConfig.MSG_UNREGISTER_CLIENT -> {
@@ -477,6 +589,7 @@ object CoreServiceManager {
                 }
 
                 AppConfig.MSG_STATE_STOP -> {
+                    restartJob?.cancel()
                     LogUtil.i(AppConfig.TAG, "StartCore-Manager: Stop service")
                     serviceControl.stopService()
                 }
@@ -487,14 +600,20 @@ object CoreServiceManager {
                     // daemon before stopping it instead of relying on possibly stale UI state.
                     if (isOrderedBroadcast) resultCode = Activity.RESULT_OK
 
+                    restartJob?.cancel()
+                    val restartOwner = SupervisorJob()
+                    restartJob = restartOwner
                     val pendingResult = goAsync()
-                    CoroutineScope(Dispatchers.Default).launch {
+                    CoroutineScope(restartOwner + Dispatchers.IO).launch {
                         try {
                             serviceControl.stopService()
                             delay(500L)
+                            nativeStopJob?.join()
+                            ensureActive()
                             LauncherManager.startService(serviceControl.getService())
                         } finally {
                             pendingResult.finish()
+                            restartOwner.cancel()
                         }
                     }
                 }

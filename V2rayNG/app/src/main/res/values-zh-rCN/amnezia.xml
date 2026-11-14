@@ -1,0 +1,10 @@
+<resources>
+    <string name="awg_connection_failed">AmneziaWG 连接失败。请检查配置和 VPN 权限。</string>
+    <string name="awg_vpn_only">AmneziaWG 目前仅支持 VPN 模式。</string>
+    <string name="awg_edit_import">请修改并重新导入配置文件以编辑此 AmneziaWG 配置。</string>
+    <string name="awg_captcha_title">Amnezia 验证</string>
+    <string name="awg_captcha_image">验证码图片</string>
+    <string name="awg_captcha_answer">输入图片中的代码</string>
+    <string name="awg_no_compatible_server">Amnezia 暂无适用于此账户的兼容 AWG 服务器。请稍后重试或联系服务提供商。</string>
+    <string name="awg_configuration_limit">此 Amnezia 账户已达到配置数量上限。请联系服务提供商。</string>
+</resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_fragment_baseline">试验：不分片</string>
+    <string name="lab_fragment_light">试验：轻度分片</string>
+    <string name="lab_fragment_small">试验：更小分片</string>
+    <string name="lab_fragment_variant_name">%1$s · %2$s</string>
+    <string name="lab_fragment_unavailable">此配置、传输类型或自定义伪装不支持创建试验配置。</string>
+    <string name="lab_fragment_saved">已创建本地试验配置。请选择它并重新连接以测试。</string>
+</resources>

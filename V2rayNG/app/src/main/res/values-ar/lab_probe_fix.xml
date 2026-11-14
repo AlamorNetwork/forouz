@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_test_active_connection">اختبار الاتصال النشط</string>
+    <string name="lab_test_not_active">النفق المطلوب غير نشط. اتصل به وحاول مجددًا.</string>
+    <string name="lab_test_reply_timeout">لم ترد خدمة الاختبار في الوقت المحدد. حاول مجددًا.</string>
+    <string name="awg_test_dns_error">فشل بحث DNS عبر VPN. تحقق من إعدادات DNS للنفق.</string>
+    <string name="awg_test_tls_error">فشل التحقق أو المصافحة TLS مع وجهة الاختبار.</string>
+    <string name="awg_test_socket_error">تعذر اتصال مقبس الاختبار عبر شبكة VPN.</string>
+</resources>

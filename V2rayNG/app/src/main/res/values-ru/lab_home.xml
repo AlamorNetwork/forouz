@@ -1,0 +1,17 @@
+<resources>
+    <string name="lab_home">Подключение</string>
+    <string name="lab_vpn_on">VPN включён</string>
+    <string name="lab_vpn_off">VPN выключен</string>
+    <string name="lab_connected_title">Подключено</string>
+    <string name="lab_ready_title">Готово к подключению</string>
+    <string name="lab_empty_hint">Добавьте конфигурацию для подключения.</string>
+    <string name="lab_connection_hint">Подключитесь с выбранной конфигурацией.</string>
+    <string name="lab_selected_profile">Выбранная конфигурация</string>
+    <string name="lab_choose_profile">Выбрать конфигурацию</string>
+    <string name="lab_protocol">Протокол</string>
+    <string name="lab_last_delay">Последняя проверка задержки</string>
+    <string name="lab_delay_ms">%1$d мс</string>
+    <string name="lab_not_measured">Нет измерения</string>
+    <string name="lab_test_connection">Проверить соединение</string>
+    <string name="awg_copy_native">Копировать конфигурацию AmneziaWG</string>
+</resources>

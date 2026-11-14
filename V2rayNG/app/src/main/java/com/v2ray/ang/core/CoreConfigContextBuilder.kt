@@ -62,7 +62,7 @@ object CoreConfigContextBuilder {
      * Custom profiles are ignored at this stage and produce no entry.
      */
     private fun resolveOutbound(tag: String, profile: ProfileItem): CoreConfigContext.ResolvedOutbound? {
-        if (profile.configType == EConfigType.CUSTOM) {
+        if (profile.configType == EConfigType.CUSTOM || profile.configType == EConfigType.AMNEZIAWG) {
             return null
         }
 
@@ -169,7 +169,7 @@ object CoreConfigContextBuilder {
                 }
                 .filter { it.server.isNotNullEmpty() }
                 .filter { Utils.isPureIpAddress(it.server!!) || Utils.isValidUrl(it.server!!) }
-                .filter { !it.configType.isComplexType() }
+                .filter { !it.configType.isComplexType() && it.configType != EConfigType.AMNEZIAWG }
                 .toList()
         } catch (e: Exception) {
             LogUtil.e(AppConfig.TAG, "Failed to resolve policy group profiles for '${config.remarks}'", e)
@@ -188,7 +188,7 @@ object CoreConfigContextBuilder {
                 .mapNotNull { remark -> SettingsManager.getServerViaRemarks(remark) }
                 .filter { it.server.isNotNullEmpty() }
                 .filter { Utils.isPureIpAddress(it.server!!) || Utils.isValidUrl(it.server!!) }
-                .filter { !it.configType.isComplexType() }
+                .filter { !it.configType.isComplexType() && it.configType != EConfigType.AMNEZIAWG }
                 .toList()
                 .reversed()
         } catch (e: Exception) {
@@ -213,7 +213,7 @@ object CoreConfigContextBuilder {
             SettingsManager.getServerViaRemarks(subItem.nextProfile)?.let { resolved.add(it) }
             resolved.add(config)
             SettingsManager.getServerViaRemarks(subItem.prevProfile)?.let { resolved.add(it) }
-            return resolved
+            return resolved.filter { it.configType != EConfigType.AMNEZIAWG }
         } catch (e: Exception) {
             LogUtil.e(AppConfig.TAG, "Failed to resolve proxy chain from group for '${config.remarks}'", e)
             return listOf(config)

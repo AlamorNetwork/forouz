@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_fragment_baseline">Проба: без фрагментации</string>
+    <string name="lab_fragment_light">Проба: лёгкая фрагментация</string>
+    <string name="lab_fragment_small">Проба: мелкие фрагменты</string>
+    <string name="lab_fragment_variant_name">%1$s · %2$s</string>
+    <string name="lab_fragment_unavailable">Проба недоступна для этого профиля, транспорта или собственной маски.</string>
+    <string name="lab_fragment_saved">Локальная копия создана. Выберите её и переподключитесь для проверки.</string>
+</resources>

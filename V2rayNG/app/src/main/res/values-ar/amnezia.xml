@@ -1,0 +1,10 @@
+<resources>
+    <string name="awg_connection_failed">تعذر اتصال AmneziaWG. تحقق من الإعدادات وإذن VPN.</string>
+    <string name="awg_vpn_only">يدعم AmneziaWG وضع VPN فقط حالياً.</string>
+    <string name="awg_edit_import">لتعديل هذا الملف، عدل ملف الإعدادات واستورده مجدداً.</string>
+    <string name="awg_captcha_title">التحقق من Amnezia</string>
+    <string name="awg_captcha_image">صورة التحقق</string>
+    <string name="awg_captcha_answer">أدخل الرمز في الصورة</string>
+    <string name="awg_no_compatible_server">لا يتوفر حاليًا خادم AWG متوافق لهذا الحساب لدى Amnezia. حاول لاحقًا أو تواصل مع المزوّد.</string>
+    <string name="awg_configuration_limit">تم بلوغ الحد الأقصى لعدد إعدادات حساب Amnezia هذا. تواصل مع المزوّد.</string>
+</resources>

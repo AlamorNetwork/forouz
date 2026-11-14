@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_test_active_connection">测试当前连接</string>
+    <string name="lab_test_not_active">请求的隧道未运行。连接后重试。</string>
+    <string name="lab_test_reply_timeout">连接测试服务未及时响应。请重试。</string>
+    <string name="awg_test_dns_error">通过 VPN 的 DNS 解析失败。请检查隧道 DNS。</string>
+    <string name="awg_test_tls_error">测试目标的 TLS 验证或握手失败。</string>
+    <string name="awg_test_socket_error">测试套接字无法通过 VPN 网络连接。</string>
+</resources>

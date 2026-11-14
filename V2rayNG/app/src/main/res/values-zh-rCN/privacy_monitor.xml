@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="privacy_title">Privacy &amp; Leak Monitor</string>
+    <string name="privacy_disclosure">Manual checks using ipify and Akamai. Xray uses its local proxy; Amnezia uses VPN. This does not test every app. Results stay in memory.</string>
+    <string name="privacy_ipv4">IPv4</string>
+    <string name="privacy_ipv6">IPv6</string>
+    <string name="privacy_dns">DNS observation</string>
+    <string name="privacy_running">Checking… up to 25 seconds</string>
+    <string name="privacy_stale">Old sample · check again</string>
+    <string name="privacy_baseline_captured">Direct-network sample recorded</string>
+    <string name="privacy_dns_possible">Possible DNS bypass · resolver also seen without VPN</string>
+    <string name="privacy_dns_no_match">No resolver overlap in this sample</string>
+    <string name="privacy_baseline_expired">Direct sample expired · capture again while disconnected</string>
+    <string name="privacy_network_different">Network changed or cannot be identified · comparison unavailable</string>
+    <string name="privacy_dns_unavailable">DNS evidence incomplete · leak status unknown</string>
+    <string name="privacy_need_baseline">Resolvers observed · direct sample needed for comparison</string>
+    <string name="privacy_cancelled">Check cancelled</string>
+    <string name="privacy_not_tested">Not checked</string>
+    <string name="privacy_dns_limit">A shared public resolver can be intentional. Overlap is not proof of a leak; no overlap does not guarantee no leaks.</string>
+    <string name="privacy_vpn_sample">VPN-path sample · %1$s</string>
+    <string name="privacy_direct_sample">Without-VPN sample · %1$s</string>
+    <string name="privacy_android_required">Android 11+ is required to verify VPN ownership.</string>
+    <string name="privacy_vpn_unavailable">Froz VPN network not found. Proxy-only and root modes are not measured.</string>
+    <string name="privacy_disconnect_first">Disconnect all VPNs before capturing a direct sample.</string>
+    <string name="privacy_network_changed">Network changed during the check · result discarded</string>
+    <string name="privacy_failed">Check could not finish. Try again.</string>
+    <string name="privacy_check">Check privacy</string>
+    <string name="privacy_capture_baseline">Capture without-VPN sample</string>
+    <string name="privacy_clear">Forget samples</string>
+    <string name="privacy_baseline_consent">This sends small IP and DNS checks directly over your current internet to ipify and Akamai, while VPN is disconnected. Connect the VPN afterwards and check again on the same network within 30 minutes. Nothing is saved to disk.</string>
+    <string name="privacy_capture">Capture sample</string>
+    <string name="privacy_address_unavailable">Not measured / unavailable</string>
+    <string name="privacy_proxy_dns_unavailable">DNS leak status unknown. This Xray proxy check cannot measure Android or other apps’ DNS paths.</string>
+    <string name="privacy_proxy_sample">Xray proxy egress · %1$s</string>
+    <string name="privacy_route_unsupported">This check needs Android 11+ and a supported active VPN route. Xray requires a local SOCKS listener without authentication; root and proxy-only modes are not measured.</string>
+</resources>

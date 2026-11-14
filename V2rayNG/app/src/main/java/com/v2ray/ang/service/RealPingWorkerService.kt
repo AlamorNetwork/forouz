@@ -4,6 +4,7 @@ import android.content.Context
 import com.v2ray.ang.core.CoreConfigManager
 import com.v2ray.ang.core.CoreNativeManager
 import com.v2ray.ang.dto.RealPingEvent
+import com.v2ray.ang.dto.entities.ProfileItem
 import com.v2ray.ang.enums.EConfigType
 import com.v2ray.ang.extension.isComplexType
 import com.v2ray.ang.extension.isNotNullEmpty
@@ -25,6 +26,11 @@ import java.util.concurrent.atomic.AtomicInteger
 
 internal object RealPingExecutionLimiter {
     private val customConfigMutex = Mutex()
+    private val nativeInitialization = Mutex()
+
+    suspend fun initialize(context: Context) {
+        nativeInitialization.withLock { CoreNativeManager.initCoreEnv(context) }
+    }
 
     suspend fun <T> run(configType: EConfigType, block: () -> T): T {
         // Custom profiles bypass speed-test trimming and start complete Xray configs.
@@ -62,9 +68,15 @@ class RealPingWorkerService(
             scope.launch {
                 runningCount.incrementAndGet()
                 try {
-                    val result = if (onlyTcp) startTcping(guid) else startRealPing(guid)
+                    val config = MmkvManager.decodeServerConfig(guid)
+                    val result = if (config?.configType == EConfigType.AMNEZIAWG) {
+                        if (onlyTcp) RealPingEvent.Result(guid, 0, measured = false)
+                        else measureActiveAwg(context, guid)
+                    } else {
+                        RealPingEvent.Result(guid, if (onlyTcp) startTcping(config) else startRealPing(guid, config))
+                    }
                     if (scope.isActive) {
-                        onEvent(RealPingEvent.Result(guid, result))
+                        onEvent(result)
                     }
                 } catch (_: Throwable) {
                     // ignore
@@ -104,10 +116,11 @@ class RealPingWorkerService(
         }
     }
 
-    private suspend fun startRealPing(guid: String): Long {
+    private suspend fun startRealPing(guid: String, config: ProfileItem?): Long {
         val retFailure = -1L
 
-        val config = MmkvManager.decodeServerConfig(guid) ?: return retFailure
+        if (config == null) return retFailure
+        RealPingExecutionLimiter.initialize(context)
         if (!config.configType.isComplexType()
             && config.configType != EConfigType.HYSTERIA2
             && config.configType != EConfigType.WIREGUARD
@@ -132,10 +145,10 @@ class RealPingWorkerService(
         }
     }
 
-    private fun startTcping(guid: String): Long {
+    private fun startTcping(config: ProfileItem?): Long {
         val retFailure = -1L
 
-        val config = MmkvManager.decodeServerConfig(guid) ?: return retFailure
+        if (config == null) return retFailure
         if (!config.configType.isComplexType()
             && config.configType != EConfigType.HYSTERIA2
             && config.configType != EConfigType.WIREGUARD

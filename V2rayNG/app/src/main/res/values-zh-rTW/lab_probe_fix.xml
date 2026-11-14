@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_test_active_connection">測試目前連線</string>
+    <string name="lab_test_not_active">要求的通道未執行。連線後重試。</string>
+    <string name="lab_test_reply_timeout">連線測試服務未及時回應。請重試。</string>
+    <string name="awg_test_dns_error">透過 VPN 的 DNS 解析失敗。請檢查通道 DNS。</string>
+    <string name="awg_test_tls_error">測試目標的 TLS 驗證或交握失敗。</string>
+    <string name="awg_test_socket_error">測試通訊端無法透過 VPN 網路連線。</string>
+</resources>

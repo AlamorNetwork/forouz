@@ -12,6 +12,12 @@ enum class NotificationChannelType(
     @StringRes val channelNameRes: Int,
     val notificationId: Int
 ) {
+    CONNECTION_HEALTH("connection_health_channel", R.string.health_title, 15),
+    LABORATORY(
+        channelId = "laboratory_channel",
+        channelNameRes = R.string.lab_title,
+        notificationId = 14
+    ),
     SUBSCRIPTION_UPDATE(
         channelId = "subscription_update_channel",
         channelNameRes = R.string.notification_channel_subscription_updates,

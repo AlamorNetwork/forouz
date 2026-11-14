@@ -61,7 +61,7 @@ class MainActivity : HelperBaseComponentActivity() {
 
     private val requestVpnPermission =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == RESULT_OK) startV2Ray()
+            if (it.resultCode == RESULT_OK) startV2Ray() else mainViewModel.onAction(MainAction.VpnPermissionDenied)
         }
 
     private val profileEditorLauncher =
@@ -79,7 +79,11 @@ class MainActivity : HelperBaseComponentActivity() {
             val selectedProfileSaved = action == ProfileEditorResult.ACTION_SAVED &&
                     data.getStringExtra(ProfileEditorResult.EXTRA_GUID) == mainViewModel.uiState.value.selectedGuid
             mainViewModel.onAction(MainAction.RefreshGroups)
-            if (restartService || selectedProfileSaved) LauncherManager.restartService(this)
+            val state = mainViewModel.uiState.value
+            val editedGuid = data.getStringExtra(ProfileEditorResult.EXTRA_GUID)
+            if ((restartService || selectedProfileSaved) && state.isRunning &&
+                editedGuid == state.activeTestProfileGuid() && editedGuid == state.selectedGuid) LauncherManager.restartService(this)
+            else if (restartService && state.isRunning) mainViewModel.onAction(MainAction.RequestRestartConfirmation)
         }
 
     private val settingsActivityLauncher =
@@ -88,7 +92,11 @@ class MainActivity : HelperBaseComponentActivity() {
             val refreshGroups = SettingsChangeManager.consumeSetupGroupTab()
             mainViewModel.refreshUiSettings()
             if (refreshGroups) mainViewModel.onAction(MainAction.RefreshGroups)
-            if (restartService) LauncherManager.restartService(this)
+            if (restartService && mainViewModel.uiState.value.isRunning) {
+                val state = mainViewModel.uiState.value
+                if (state.selectedGuid != state.activeTestProfileGuid()) mainViewModel.onAction(MainAction.RequestRestartConfirmation)
+                else LauncherManager.restartService(this)
+            }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,6 +106,11 @@ class MainActivity : HelperBaseComponentActivity() {
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
     }
 
+    override fun onResume() {
+        super.onResume()
+        mainViewModel.onAction(MainAction.RefreshConnectionState)
+    }
+
     @Composable
     override fun ScreenContent() {
         BackHandler { moveTaskToBack(false) }
@@ -105,15 +118,21 @@ class MainActivity : HelperBaseComponentActivity() {
             mainViewModel = mainViewModel,
             onAction = { action ->
                 when (action) {
+                    MainAction.CancelServiceStart -> {
+                        mainViewModel.onAction(MainAction.ServiceCommandIssued(MainCommandKind.STOP))
+                        LauncherManager.stopService(this)
+                    }
                     MainAction.ToggleService -> handleFabAction()
-                    MainAction.TestCurrentServer -> handleLayoutTestClick()
                     MainAction.ImportQRcode -> importQRcode()
                     MainAction.ImportClipboard -> importClipboard()
                     MainAction.ImportConfigLocal -> importConfigLocal()
                     is MainAction.ImportManually -> importManually(action.type)
-                    MainAction.RestartService -> LauncherManager.restartServiceOrStart(this, ::requestServiceStart)
+                    MainAction.RestartService -> {
+                        if (mainViewModel.uiState.value.isRunning) mainViewModel.onAction(MainAction.ServiceCommandIssued(MainCommandKind.RESTART))
+                        LauncherManager.restartServiceOrStart(this, ::requestServiceStart)
+                    }
                     MainAction.LocateSelectedServer -> mainViewModel.triggerLocateSelectedServer()
-                    is MainAction.SelectServer -> setSelectServer(action.guid)
+                    is MainAction.SelectServer -> mainViewModel.onAction(action)
                     is MainAction.EditServer -> editServer(action.guid, action.profile)
                     is MainAction.ShareClipboard -> shareToClipboard(action.guid)
                     is MainAction.ShareFullContent -> shareFullContentAsync(action.guid)
@@ -146,6 +165,8 @@ class MainActivity : HelperBaseComponentActivity() {
 
     private fun navigateTo(destination: MainDestination) {
         val intent = when (destination) {
+            MainDestination.Laboratory -> Intent(this, com.v2ray.ang.ui.lab.LabActivity::class.java)
+                .putExtra("group_id", mainViewModel.uiState.value.selectedGroupId)
             MainDestination.Subscriptions -> Intent(this, SubSettingActivity::class.java)
             MainDestination.PerAppProxy -> Intent(this, PerAppProxyActivity::class.java)
             MainDestination.Routing -> Intent(this, RoutingSettingActivity::class.java)
@@ -167,7 +188,9 @@ class MainActivity : HelperBaseComponentActivity() {
     }
 
     private fun handleFabAction() {
+        if (mainViewModel.uiState.value.pendingCommand != null) return
         if (mainViewModel.uiState.value.isRunning) {
+            mainViewModel.onAction(MainAction.ServiceCommandIssued(MainCommandKind.STOP))
             LauncherManager.stopService(this)
         } else {
             requestServiceStart()
@@ -183,12 +206,6 @@ class MainActivity : HelperBaseComponentActivity() {
         if (intent == null) startV2Ray() else requestVpnPermission.launch(intent)
     }
 
-    private fun handleLayoutTestClick() {
-        if (mainViewModel.uiState.value.isRunning) {
-            mainViewModel.testCurrentServerRealPing()
-        }
-    }
-
     private fun startV2Ray() {
         if (mainViewModel.uiState.value.selectedGuid.isNullOrEmpty()) {
             toast(R.string.title_file_chooser)
@@ -198,6 +215,7 @@ class MainActivity : HelperBaseComponentActivity() {
         ) {
             checkAndRequestPermission(PermissionType.ACCESS_LOCAL_NETWORK) {}
         }
+        mainViewModel.onAction(MainAction.ServiceCommandIssued(MainCommandKind.START))
         LauncherManager.startService(this)
     }
 
@@ -242,17 +260,24 @@ class MainActivity : HelperBaseComponentActivity() {
     private fun importConfigLocal() {
         launchFileChooser { uri ->
             if (uri == null) return@launchFileChooser
-            try {
-                contentResolver.openInputStream(uri)?.bufferedReader()?.use { reader ->
-                    mainViewModel.onAction(MainAction.ImportBatchConfig(reader.readText()))
+            lifecycleScope.launch(Dispatchers.IO) {
+                try {
+                    val text = contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() } ?: error("No input")
+                    withContext(Dispatchers.Main.immediate) { mainViewModel.onAction(MainAction.ImportBatchConfig(text)) }
+                } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+                catch (e: Exception) {
+                    LogUtil.e(AppConfig.TAG, "Main phase=import-file", IllegalStateException(e.javaClass.simpleName))
+                    withContext(Dispatchers.Main.immediate) { toastError(R.string.toast_failure) }
                 }
-            } catch (e: Exception) {
-                LogUtil.e(AppConfig.TAG, "Failed to read content from URI", e)
             }
         }
     }
 
     private fun editServer(guid: String, profile: ProfileItem) {
+        if (profile.configType == EConfigType.AMNEZIAWG) {
+            toast(R.string.awg_edit_import)
+            return
+        }
         val activityClass = when (profile.configType) {
             EConfigType.CUSTOM -> ServerCustomConfigActivity::class.java
             EConfigType.POLICYGROUP -> ServerGroupActivity::class.java
@@ -276,13 +301,6 @@ class MainActivity : HelperBaseComponentActivity() {
         profileEditorLauncher.launch(intent)
     }
 
-    private fun setSelectServer(guid: String) {
-        val selected = mainViewModel.uiState.value.selectedGuid
-        if (guid != selected) {
-            mainViewModel.updateSelectedGuid(guid)
-            LauncherManager.restartService(this)
-        }
-    }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BUTTON_B) {

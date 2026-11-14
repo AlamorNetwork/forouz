@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_duration">%1$02d:%2$02d:%3$02d</string>
+    <string name="lab_notification_rates">↓ %1$s  •  ↑ %2$s</string>
+    <string name="lab_notification_permission">يلزم إذن VPN. افتح التطبيق للاتصال.</string>
+    <string name="lab_notification_disconnected">غير متصل. اضغط اتصال لإعادة الاتصال.</string>
+    <string name="lab_open_app">فتح التطبيق</string>
+    <string name="lab_traffic_waiting">بانتظار عينة حركة البيانات…</string>
+    <string name="lab_traffic_unavailable">إحصاءات البيانات غير متاحة لهذا الاتصال.</string>
+    <string name="lab_download">تنزيل</string>
+    <string name="lab_upload">رفع</string>
+    <string name="lab_total_bytes">الإجمالي %1$s</string>
+    <string name="lab_chart_description">حركة Xray خلال ٩٠ ثانية. التنزيل %1$s، الرفع %2$s.</string>
+    <string name="lab_traffic_window">٩٠ ثانية • المقياس %1$s</string>
+    <string name="lab_traffic_scope">حركة Xray المباشرة وعبر الوكيل. متصل: تنزيل، متقطع: رفع. معدل بايت وليس اختبار سرعة.</string>
+    <string name="lab_uptime">مدة الاتصال %1$s</string>
+</resources>

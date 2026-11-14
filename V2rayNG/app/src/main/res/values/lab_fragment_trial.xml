@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_fragment_baseline">Trial: no fragmentation</string>
+    <string name="lab_fragment_light">Trial: light fragmentation</string>
+    <string name="lab_fragment_small">Trial: smaller fragments</string>
+    <string name="lab_fragment_variant_name">%1$s · %2$s</string>
+    <string name="lab_fragment_unavailable">Trial unavailable for this profile, transport or existing custom mask.</string>
+    <string name="lab_fragment_saved">Local trial created. Select it, then reconnect to test.</string>
+</resources>

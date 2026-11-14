@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_duration">%1$02d:%2$02d:%3$02d</string>
+    <string name="lab_notification_rates">↓ %1$s  •  ↑ %2$s</string>
+    <string name="lab_notification_permission">مجوز VPN لازمه؛ سی وصل شدن برنامه ره وا کنین.</string>
+    <string name="lab_notification_disconnected">قطع وابه؛ سی وصل شدن «اتصال» ره بزنین.</string>
+    <string name="lab_open_app">وا کردن برنامه</string>
+    <string name="lab_traffic_waiting">منتظر نمونهٔ ترافیک…</string>
+    <string name="lab_traffic_unavailable">آمار ترافیک سی ای اتصال در دسترس نی.</string>
+    <string name="lab_download">دانلود</string>
+    <string name="lab_upload">آپلود</string>
+    <string name="lab_total_bytes">روی هم %1$s</string>
+    <string name="lab_chart_description">ترافیک Xray تو ۹۰ ثانیه؛ دانلود %1$s، آپلود %2$s.</string>
+    <string name="lab_traffic_window">۹۰ ثانیه • مقیاس %1$s</string>
+    <string name="lab_traffic_scope">ترافیک پروکسی و مستقیم Xray؛ خط پیوسته: دانلود، خط‌چین: آپلود. نرخ بایته، تست سرعت نی.</string>
+    <string name="lab_uptime">مدت اتصال %1$s</string>
+</resources>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_duration">%1$02d:%2$02d:%3$02d</string>
+    <string name="lab_notification_rates">↓ %1$s  •  ↑ %2$s</string>
+    <string name="lab_notification_permission">VPN permission needed. Open the app to connect.</string>
+    <string name="lab_notification_disconnected">Disconnected. Tap Connect to reconnect.</string>
+    <string name="lab_open_app">Open app</string>
+    <string name="lab_traffic_waiting">Waiting for traffic sample…</string>
+    <string name="lab_traffic_unavailable">Traffic statistics are unavailable for this connection.</string>
+    <string name="lab_download">Download</string>
+    <string name="lab_upload">Upload</string>
+    <string name="lab_total_bytes">Total %1$s</string>
+    <string name="lab_chart_description">Xray traffic over 90 seconds. Download %1$s, upload %2$s.</string>
+    <string name="lab_traffic_window">90 seconds • Scale %1$s</string>
+    <string name="lab_traffic_scope">Xray proxy + direct traffic. Solid: download · Dashed: upload. Byte rates, not a speed test.</string>
+    <string name="lab_uptime">Connected for %1$s</string>
+</resources>

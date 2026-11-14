@@ -1,0 +1,17 @@
+<resources>
+    <string name="lab_home">Connection</string>
+    <string name="lab_vpn_on">VPN is on</string>
+    <string name="lab_vpn_off">VPN is off</string>
+    <string name="lab_connected_title">Connected</string>
+    <string name="lab_ready_title">Ready to connect</string>
+    <string name="lab_empty_hint">Add a configuration to start your connection.</string>
+    <string name="lab_connection_hint">Connect using your selected configuration.</string>
+    <string name="lab_selected_profile">Selected configuration</string>
+    <string name="lab_choose_profile">Choose a configuration</string>
+    <string name="lab_protocol">Protocol</string>
+    <string name="lab_last_delay">Last latency test</string>
+    <string name="lab_delay_ms">%1$d ms</string>
+    <string name="lab_not_measured">Not measured</string>
+    <string name="lab_test_connection">Test connection</string>
+    <string name="awg_copy_native">Copy native AmneziaWG configuration</string>
+</resources>

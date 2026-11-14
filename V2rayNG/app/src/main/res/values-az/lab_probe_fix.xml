@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_test_active_connection">Aktiv bağlantını yoxla</string>
+    <string name="lab_test_not_active">İstənilən tunel işləmir. Qoşulub yenidən yoxlayın.</string>
+    <string name="lab_test_reply_timeout">Test xidməti vaxtında cavab vermədi. Yenidən cəhd edin.</string>
+    <string name="awg_test_dns_error">VPN üzərindən DNS sorğusu alınmadı. Tunelin DNS ayarlarını yoxlayın.</string>
+    <string name="awg_test_tls_error">Test hədəfi ilə TLS yoxlaması və ya əl sıxması alınmadı.</string>
+    <string name="awg_test_socket_error">Test soketi VPN şəbəkəsi üzərindən qoşula bilmədi.</string>
+</resources>

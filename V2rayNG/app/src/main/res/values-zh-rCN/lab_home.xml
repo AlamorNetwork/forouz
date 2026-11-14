@@ -1,0 +1,17 @@
+<resources>
+    <string name="lab_home">连接</string>
+    <string name="lab_vpn_on">VPN 已开启</string>
+    <string name="lab_vpn_off">VPN 已关闭</string>
+    <string name="lab_connected_title">已连接</string>
+    <string name="lab_ready_title">准备连接</string>
+    <string name="lab_empty_hint">添加配置以开始连接。</string>
+    <string name="lab_connection_hint">使用所选配置连接。</string>
+    <string name="lab_selected_profile">所选配置</string>
+    <string name="lab_choose_profile">选择配置</string>
+    <string name="lab_protocol">协议</string>
+    <string name="lab_last_delay">上次延迟测试</string>
+    <string name="lab_delay_ms">%1$d 毫秒</string>
+    <string name="lab_not_measured">未测量</string>
+    <string name="lab_test_connection">测试连接</string>
+    <string name="awg_copy_native">复制原生 AmneziaWG 配置</string>
+</resources>

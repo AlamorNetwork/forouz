@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="forouz_update_no_release">No FOROUZ release has been published yet.</string>
+    <string name="forouz_update_no_apk">A newer version exists, but no APK matches this device and installation type.</string>
+    <string name="forouz_update_invalid">Release metadata is invalid; no download selected.</string>
+    <string name="forouz_update_network">Could not reach FOROUZ releases. Check your connection and try again.</string>
+    <string name="forouz_update_source">Update source: %1$s</string>
+    <string name="forouz_update_releases">FOROUZ releases and downloads</string>
+    <string name="forouz_update_preferences">Could not load or save update preferences.</string>
+    <string name="forouz_update_available">A new FOROUZ version is available.</string>
+</resources>

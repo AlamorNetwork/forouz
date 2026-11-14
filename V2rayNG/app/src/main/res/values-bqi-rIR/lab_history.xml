@@ -1,0 +1,12 @@
+<resources>
+    <string name="lab_history_missing">این گزارش دیگر در تاریخچهٔ ذخیره‌شده وجود ندارد.</string>
+    <string name="lab_history_browse">تاریخچه و گزارش‌های قبلی</string>
+    <string name="lab_history_report">گزارش آزمایش</string>
+    <string name="lab_history_scope">%1$d دور آخر از همهٔ گروه‌ها. برای دیدن نتیجهٔ تک‌تک کانفیگ‌ها، گزارش یک دور را باز کنید.</string>
+    <string name="lab_history_note">این‌ها نتایج ذخیره‌شدهٔ همین دور هستند. بازکردن گزارش تست تازه‌ای اجرا نمی‌کند. نام کانفیگ‌ها از اطلاعات فعلیِ در دسترس گرفته می‌شود.</string>
+    <string name="lab_history_empty">هنوز دور آزمایشی ذخیره نشده است. با اجرای تست در آزمایشگاه، گزارش ایجاد می‌شود.</string>
+    <string name="lab_history_open">مشاهدهٔ گزارش این دور</string>
+    <string name="lab_history_profile">کانفیگِ پیشین %1$d</string>
+    <string name="lab_history_old_group">گروه پیشین</string>
+    <string name="lab_history_group">گروه: %1$s</string>
+</resources>

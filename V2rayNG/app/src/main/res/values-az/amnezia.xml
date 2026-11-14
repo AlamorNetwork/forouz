@@ -1,0 +1,10 @@
+<resources>
+    <string name="awg_connection_failed">AmneziaWG bağlantısı alınmadı. Konfiqurasiyanı və VPN icazəsini yoxlayın.</string>
+    <string name="awg_vpn_only">AmneziaWG hazırda yalnız VPN rejimini dəstəkləyir.</string>
+    <string name="awg_edit_import">Bu AmneziaWG profilini dəyişmək üçün konfiqurasiya faylını yeniləyib yenidən idxal edin.</string>
+    <string name="awg_captcha_title">Amnezia yoxlaması</string>
+    <string name="awg_captcha_image">Yoxlama şəkli</string>
+    <string name="awg_captcha_answer">Şəkildəki kodu daxil edin</string>
+    <string name="awg_no_compatible_server">Amnezia-da bu hesab üçün uyğun AWG serveri hazırda yoxdur. Sonra yenidən cəhd edin və ya provayderlə əlaqə saxlayın.</string>
+    <string name="awg_configuration_limit">Bu Amnezia hesabı üçün konfiqurasiya limitinə çatılıb. Provayderlə əlaqə saxlayın.</string>
+</resources>

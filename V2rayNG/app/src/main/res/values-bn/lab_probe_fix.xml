@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_test_active_connection">সক্রিয় সংযোগ পরীক্ষা</string>
+    <string name="lab_test_not_active">অনুরোধ করা টানেল চালু নেই। সংযোগ করে আবার চেষ্টা করুন।</string>
+    <string name="lab_test_reply_timeout">পরীক্ষা পরিষেবা সময়মতো উত্তর দেয়নি। আবার চেষ্টা করুন।</string>
+    <string name="awg_test_dns_error">VPN দিয়ে DNS অনুসন্ধান ব্যর্থ। টানেলের DNS দেখুন।</string>
+    <string name="awg_test_tls_error">পরীক্ষার গন্তব্যে TLS যাচাই বা হ্যান্ডশেক ব্যর্থ।</string>
+    <string name="awg_test_socket_error">পরীক্ষার সকেট VPN নেটওয়ার্ক দিয়ে সংযোগ করতে পারেনি।</string>
+</resources>

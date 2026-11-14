@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_test_active_connection">Kiểm tra kết nối đang hoạt động</string>
+    <string name="lab_test_not_active">Đường hầm yêu cầu chưa chạy. Hãy kết nối rồi thử lại.</string>
+    <string name="lab_test_reply_timeout">Dịch vụ kiểm tra không trả lời kịp thời. Hãy thử lại.</string>
+    <string name="awg_test_dns_error">Tra cứu DNS qua VPN thất bại. Kiểm tra DNS của đường hầm.</string>
+    <string name="awg_test_tls_error">Xác minh hoặc bắt tay TLS với đích kiểm tra thất bại.</string>
+    <string name="awg_test_socket_error">Socket kiểm tra không thể kết nối qua mạng VPN.</string>
+</resources>

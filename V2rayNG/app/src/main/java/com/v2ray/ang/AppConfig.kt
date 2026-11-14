@@ -127,11 +127,11 @@ object AppConfig {
     const val GITHUB_RAW_URL = "https://raw.githubusercontent.com"
     const val GITHUB_DOWNLOAD_URL = "$GITHUB_URL/%s/releases/latest/download"
     const val ANDROID_PACKAGE_NAME_LIST_URL = "$GITHUB_RAW_URL/2dust/androidpackagenamelist/master/proxy.txt"
-    const val APP_URL = "$GITHUB_URL/2dust/v2rayNG"
-    const val APP_API_URL = "https://api.github.com/repos/2dust/v2rayNG/releases"
+    const val APP_URL = com.v2ray.ang.handler.ForouzReleasePolicy.PAGE
+    const val APP_API_URL = com.v2ray.ang.handler.ForouzReleasePolicy.API
     const val APP_ISSUES_URL = "$APP_URL/issues"
-    const val APP_WIKI_MODE = "$APP_URL/wiki/Mode"
-    const val APP_PRIVACY_POLICY = "$GITHUB_RAW_URL/2dust/v2rayNG/master/CR.md"
+    const val APP_WIKI_MODE = "$GITHUB_URL/2dust/v2rayNG/wiki/Mode"
+    const val APP_PRIVACY_POLICY = "$GITHUB_RAW_URL/AlamorNetwork/forouz/master/PRIVACY.md"
     const val APP_PROMOTION_URL = "aHR0cHM6Ly85LjIzNDQ1Ni54eXovYWJjLmh0bWw="
     const val TG_CHANNEL_URL = "https://t.me/github_2dust"
     const val DELAY_TEST_URL = "https://www.gstatic.com/generate_204"
@@ -178,6 +178,9 @@ object AppConfig {
 
     /** Message constants for communication. */
     const val MSG_REGISTER_CLIENT = 1
+    const val MSG_CONNECTION_SNAPSHOT = 91
+    const val MSG_MEASURE_AWG_DELAY = 92
+    const val MSG_CANCEL_AWG_DELAY = 93
     const val MSG_STATE_RUNNING = 11
     const val MSG_STATE_NOT_RUNNING = 12
     const val MSG_UNREGISTER_CLIENT = 2

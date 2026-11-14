@@ -14,17 +14,11 @@ import com.v2ray.ang.AppConfig
 import com.v2ray.ang.R
 import com.v2ray.ang.core.CoreServiceManager
 import com.v2ray.ang.dto.entities.ProfileItem
-import com.v2ray.ang.extension.delay
+import com.v2ray.ang.dto.ConnectionSnapshot
 import com.v2ray.ang.extension.toSpeedString
 import com.v2ray.ang.helper.NotificationHelper
 import com.v2ray.ang.ui.main.MainActivity
-import com.v2ray.ang.util.LogUtil
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import kotlin.math.min
+import com.v2ray.ang.receiver.ReconnectReceiver
 
 object NotificationManager {
     private const val NOTIFICATION_ID = 1
@@ -32,40 +26,45 @@ object NotificationManager {
     private const val NOTIFICATION_PENDING_INTENT_STOP_V2RAY = 1
     private const val NOTIFICATION_PENDING_INTENT_RESTART_V2RAY = 2
     private const val NOTIFICATION_ICON_THRESHOLD = 3000
-    private const val QUERY_INTERVAL_MS = 3000L
+    private const val DISCONNECTED_NOTIFICATION_ID = 14
 
-    private var lastQueryTime = 0L
     private var mBuilder: NotificationCompat.Builder? = null
-    private var speedNotificationJob: Job? = null
+    private var speedVisible = true
+    private var connectionReady = false
     private var mNotificationManager: NotificationManager? = null
 
     /**
      * Starts the speed notification.
      * @param currentConfig The current profile configuration.
      */
-    fun startSpeedNotification() {
-        if (MmkvManager.decodeSettingsBool(AppConfig.PREF_SPEED_ENABLED) != true) return
-        if (speedNotificationJob != null || CoreServiceManager.isRunning() == false) return
+    @Synchronized fun startSpeedNotification() {
+        speedVisible = true
+    }
 
-        var lastZeroSpeed = false
+    @Synchronized fun markConnected() { connectionReady = true }
 
-        speedNotificationJob = CoroutineScope(Dispatchers.IO).launch {
-            while (isActive) {
-                lastZeroSpeed = updateSpeedNotificationOnce(lastZeroSpeed)
-                delay(QUERY_INTERVAL_MS)
-            }
+    /** Already sampled by the daemon; never read reset-on-query counters here. */
+    @Synchronized fun updateTraffic(snapshot: ConnectionSnapshot) {
+        if (!speedVisible || !snapshot.running) return
+        val service = getService() ?: return
+        if (!snapshot.trafficAvailable) {
+            updateNotification(service.getString(R.string.lab_traffic_unavailable), 0, 0)
+            return
         }
+        if (!snapshot.sampleReady) return
+        val text = service.getString(R.string.lab_notification_rates,
+            snapshot.downloadRate.toSpeedString(), snapshot.uploadRate.toSpeedString())
+        updateNotification(text, snapshot.proxyRate, snapshot.directRate)
     }
 
     /**
      * Shows the notification.
      * @param currentConfig The current profile configuration.
      */
-    fun showNotification(currentConfig: ProfileItem?) {
+    @Synchronized fun showNotification(currentConfig: ProfileItem?) {
         val service = getService() ?: return
 
-        // Reset last query time to avoid querying stats too soon after showing the notification
-        lastQueryTime = System.currentTimeMillis()
+        clearReconnect(service)
 
         val flags = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
 
@@ -120,7 +119,7 @@ object NotificationManager {
      * return early. A duplicate startForegroundService call still requires the service
      * to enter foreground state promptly, even when the core is already running.
      */
-    fun ensureForeground() {
+    @Synchronized fun ensureForeground() {
         val service = getService() ?: return
         val notification = mBuilder?.build()
         if (notification == null) showNotification(null) else service.startForeground(NOTIFICATION_ID, notification)
@@ -129,25 +128,53 @@ object NotificationManager {
     /**
      * Cancels the notification.
      */
-    fun cancelNotification() {
-        val service = getService() ?: return
+    @Synchronized fun cancelNotification(reconnect: Boolean = true): Boolean {
+        com.v2ray.ang.core.health.HealthRecoveryFence.invalidate()
+        val service = getService() ?: return false
         service.stopForeground(Service.STOP_FOREGROUND_REMOVE)
 
         mBuilder = null
-        speedNotificationJob?.cancel()
-        speedNotificationJob = null
+        val wasReady = connectionReady
+        if (wasReady && reconnect) showReconnect(service)
+        connectionReady = false
         mNotificationManager = null
+        return wasReady
     }
 
     /**
      * Stops the speed notification.
      */
-    fun stopSpeedNotification() {
-        speedNotificationJob?.let {
-            it.cancel()
-            speedNotificationJob = null
-            updateNotification("", 0, 0)
-        }
+    @Synchronized fun stopSpeedNotification() {
+        speedVisible = false
+        updateNotification("", 0, 0)
+    }
+
+    fun clearReconnect(context: Context) {
+        context.getSystemService(NotificationManager::class.java)?.cancel(DISCONNECTED_NOTIFICATION_ID)
+    }
+
+    /** A dismissible ordinary notification: stopping never keeps a VPN/foreground service alive. */
+    fun showReconnect(context: Context, openApp: Boolean = false) {
+        val manager = context.getSystemService(NotificationManager::class.java) ?: return
+        if (manager.activeNotifications.any { it.id == NOTIFICATION_ID }) return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS)
+            != android.content.pm.PackageManager.PERMISSION_GRANTED) return
+        val flags = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        val content = PendingIntent.getActivity(context, 0, Intent(context, MainActivity::class.java), flags)
+        // If VPN consent was revoked, the user opens the permission-aware main screen directly.
+        // Android 12+ disallows an activity trampoline through a notification receiver.
+        val connect = if (openApp) content else PendingIntent.getBroadcast(context, 3,
+            Intent(context, ReconnectReceiver::class.java).setPackage(AppConfig.ANG_PACKAGE), flags)
+        val builder = NotificationCompat.Builder(context, AppConfig.RAY_NG_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_stat_name)
+            .setContentTitle(context.getString(R.string.app_name))
+            .setContentText(context.getString(if (openApp) R.string.lab_notification_permission else R.string.lab_notification_disconnected))
+            .setContentIntent(content).setAutoCancel(true).setOnlyAlertOnce(true)
+            .setPriority(NotificationCompat.PRIORITY_LOW).setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
+            .addAction(R.drawable.ic_power_24dp,
+                context.getString(if (openApp) R.string.lab_open_app else R.string.acc_start), connect)
+        manager.notify(DISCONNECTED_NOTIFICATION_ID, builder.build())
     }
 
     /**
@@ -205,91 +232,11 @@ object NotificationManager {
     }
 
     /**
-     * Appends the speed string to the given text.
-     * @param text The text to append to.
-     * @param name The name of the tag.
-     * @param up The uplink speed.
-     * @param down The downlink speed.
-     */
-    private fun appendSpeedString(text: StringBuilder, name: String?, up: Double, down: Double) {
-        var n = name ?: "no tag"
-        n = n.take(min(n.length, 6))
-        text.append(n)
-        for (i in n.length..6 step 2) {
-            text.append("\t")
-        }
-        text.append("•  ${up.toLong().toSpeedString()}↑  ${down.toLong().toSpeedString()}↓\n")
-    }
-
-    /**
-     * Updates the speed notification once.
-     * Queries traffic stats, separates proxy and direct, and updates the notification.
-     * @param lastZeroSpeed The previous zero speed state.
-     * @return The current zero speed state.
-     */
-    private fun updateSpeedNotificationOnce(lastZeroSpeed: Boolean): Boolean {
-        val queryTime = System.currentTimeMillis()
-        val sinceLastQueryIn = (queryTime - lastQueryTime)
-
-        // If the query interval is too short, skip this round to avoid excessive CPU usage
-        if (sinceLastQueryIn < QUERY_INTERVAL_MS) {
-            LogUtil.w(AppConfig.TAG, "Query interval too short: ${sinceLastQueryIn}ms, skipping")
-            lastQueryTime = queryTime
-            return lastZeroSpeed
-        }
-        val sinceLastQueryInSeconds = sinceLastQueryIn / 1000.0
-
-        var proxyUplink = 0L
-        var proxyDownlink = 0L
-        var directUplink = 0L
-        var directDownlink = 0L
-
-        CoreServiceManager.queryAllOutboundTrafficStats().forEach { stat ->
-            when {
-                stat.tag == AppConfig.TAG_DIRECT -> {
-                    when (stat.direction) {
-                        AppConfig.UPLINK -> directUplink += stat.value
-                        AppConfig.DOWNLINK -> directDownlink += stat.value
-                    }
-                }
-
-                // Accumulate stats for all proxy outbounds (including custom subscription tags)
-                stat.tag != AppConfig.TAG_BLOCKED -> {
-                    when (stat.direction) {
-                        AppConfig.UPLINK -> proxyUplink += stat.value
-                        AppConfig.DOWNLINK -> proxyDownlink += stat.value
-                    }
-                }
-            }
-        }
-
-        val proxyTotal = proxyUplink + proxyDownlink
-        val directTotal = directUplink + directDownlink
-        val zeroSpeed = proxyTotal + directTotal == 0L
-        if (!zeroSpeed || !lastZeroSpeed) {
-            val text = StringBuilder()
-            appendSpeedString(
-                text, AppConfig.TAG_PROXY,
-                proxyUplink / sinceLastQueryInSeconds,
-                proxyDownlink / sinceLastQueryInSeconds
-            )
-
-            appendSpeedString(
-                text, AppConfig.TAG_DIRECT,
-                directUplink / sinceLastQueryInSeconds,
-                directDownlink / sinceLastQueryInSeconds
-            )
-            updateNotification(text.toString(), proxyTotal, directTotal)
-        }
-        lastQueryTime = queryTime
-        return zeroSpeed
-    }
-
-    /**
      * Gets the service instance.
      * @return The service instance.
      */
     private fun getService(): Service? {
-        return CoreServiceManager.serviceControl?.get()?.getService()
+        return CoreServiceManager.externalVpnControl?.get()?.getService()
+            ?: CoreServiceManager.serviceControl?.get()?.getService()
     }
 }

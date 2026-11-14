@@ -1,0 +1,17 @@
+<resources>
+    <string name="lab_home">Bağlantı</string>
+    <string name="lab_vpn_on">VPN aktivdir</string>
+    <string name="lab_vpn_off">VPN söndürülüb</string>
+    <string name="lab_connected_title">Qoşulub</string>
+    <string name="lab_ready_title">Qoşulmağa hazırdır</string>
+    <string name="lab_empty_hint">Başlamaq üçün konfiqurasiya əlavə edin.</string>
+    <string name="lab_connection_hint">Seçilmiş konfiqurasiya ilə qoşulun.</string>
+    <string name="lab_selected_profile">Seçilmiş konfiqurasiya</string>
+    <string name="lab_choose_profile">Konfiqurasiya seçin</string>
+    <string name="lab_protocol">Protokol</string>
+    <string name="lab_last_delay">Son gecikmə testi</string>
+    <string name="lab_delay_ms">%1$d ms</string>
+    <string name="lab_not_measured">Ölçülməyib</string>
+    <string name="lab_test_connection">Bağlantını yoxla</string>
+    <string name="awg_copy_native">Doğma AmneziaWG konfiqurasiyasını kopyala</string>
+</resources>

@@ -4,11 +4,13 @@ import com.google.gson.annotations.SerializedName
 
 data class GitHubRelease(
     @SerializedName("tag_name")
-    val tagName: String,
+    val tagName: String? = null,
     @SerializedName("body")
-    val body: String,
+    val body: String? = null,
     @SerializedName("assets")
-    val assets: List<Asset>,
+    val assets: List<Asset>? = null,
+    @SerializedName("draft")
+    val draft: Boolean = false,
     @SerializedName("prerelease")
     val prerelease: Boolean = false,
     @SerializedName("published_at")
@@ -16,8 +18,8 @@ data class GitHubRelease(
 ) {
     data class Asset(
         @SerializedName("name")
-        val name: String,
+        val name: String? = null,
         @SerializedName("browser_download_url")
-        val browserDownloadUrl: String
+        val browserDownloadUrl: String? = null
     )
 }

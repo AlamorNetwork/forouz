@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_duration">%1$02d:%2$02d:%3$02d</string>
+    <string name="lab_notification_rates">↓ %1$s  •  ↑ %2$s</string>
+    <string name="lab_notification_permission">需要 VPN 權限。請開啟應用程式連線。</string>
+    <string name="lab_notification_disconnected">已中斷。點選連線以重新連線。</string>
+    <string name="lab_open_app">開啟應用程式</string>
+    <string name="lab_traffic_waiting">等待流量取樣…</string>
+    <string name="lab_traffic_unavailable">此連線的流量統計無法使用。</string>
+    <string name="lab_download">下載</string>
+    <string name="lab_upload">上傳</string>
+    <string name="lab_total_bytes">總計 %1$s</string>
+    <string name="lab_chart_description">90 秒內的 Xray 流量。下載 %1$s，上傳 %2$s。</string>
+    <string name="lab_traffic_window">90 秒 • 刻度 %1$s</string>
+    <string name="lab_traffic_scope">Xray 代理及直連流量。實線：下載；虛線：上傳。按位元組計速，並非測速。</string>
+    <string name="lab_uptime">已連線 %1$s</string>
+</resources>

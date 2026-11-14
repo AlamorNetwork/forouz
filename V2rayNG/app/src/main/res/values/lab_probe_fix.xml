@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_test_active_connection">Test active connection</string>
+    <string name="lab_test_not_active">The requested tunnel is not running. Connect it and try again.</string>
+    <string name="lab_test_reply_timeout">The connection-test service did not reply in time. Try again.</string>
+    <string name="awg_test_dns_error">DNS lookup through the VPN failed. Check the VPN DNS settings.</string>
+    <string name="awg_test_tls_error">TLS verification or handshake failed at the test destination.</string>
+    <string name="awg_test_socket_error">The test socket could not connect through the VPN network.</string>
+</resources>

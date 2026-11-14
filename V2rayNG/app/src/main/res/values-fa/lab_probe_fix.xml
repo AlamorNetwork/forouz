@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_test_active_connection">تست اتصال فعال</string>
+    <string name="lab_test_not_active">تونل درخواست‌شده فعال نیست؛ آن را وصل و دوباره تست کنید.</string>
+    <string name="lab_test_reply_timeout">پاسخ سرویس تست در مهلت مقرر نرسید؛ دوباره امتحان کنید.</string>
+    <string name="awg_test_dns_error">حل نام DNS از شبکهٔ VPN شکست خورد؛ DNS تونل را بررسی کنید.</string>
+    <string name="awg_test_tls_error">اعتبارسنجی یا دست‌دهی TLS با مقصد تست شکست خورد.</string>
+    <string name="awg_test_socket_error">سوکت تست نتوانست از شبکهٔ VPN وصل شود.</string>
+</resources>

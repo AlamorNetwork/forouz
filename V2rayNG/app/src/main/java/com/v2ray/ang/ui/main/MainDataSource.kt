@@ -11,6 +11,12 @@ import java.io.Closeable
 
 interface MainDataSource : Closeable {
     val mainServiceEvent: Flow<MainServiceEvent>
+    val connectionSnapshots: Flow<com.v2ray.ang.dto.ConnectionSnapshot?>
+        get() = kotlinx.coroutines.flow.emptyFlow()
+    suspend fun measurePrivacy(target: PrivacyTarget): com.v2ray.ang.core.privacy.PrivacyProbeReply =
+        com.v2ray.ang.core.privacy.PrivacyProbeReply.Unavailable(com.v2ray.ang.core.privacy.PrivacyIssue.UNSUPPORTED)
+
+    fun refreshServiceState() { sendMsg2Service(com.v2ray.ang.AppConfig.MSG_REGISTER_CLIENT, "") }
 
     fun getSelectedSubscriptionId(): String
     fun setSelectedSubscriptionId(id: String)
@@ -43,11 +49,18 @@ interface MainDataSource : Closeable {
     fun sortByTestResultsForSub(subId: String)
     fun getSubsList(): List<String>
 
+    fun inspectImport(text: String): MainImportInspection = inspectProfileImport(text)
+
     suspend fun importBatchConfig(
         server: String?,
         subscriptionId: String,
         updateUI: Boolean
     ): Pair<Int, Int>
+
+    suspend fun resumeAmneziaImport(
+        challenge: com.v2ray.ang.core.amnezia.AmneziaGateway.CaptchaRequired,
+        answer: String, subscriptionId: String
+    ): Pair<Int, Int> = error("Amnezia retry unavailable")
 
     fun updateConfigViaSubAll(): SubscriptionUpdateResult
     fun updateConfigViaSub(subscriptionCache: SubscriptionCache): SubscriptionUpdateResult
@@ -55,11 +68,13 @@ interface MainDataSource : Closeable {
     fun shareNonCustomConfigsToClipboard(guids: List<String>): Int
     fun share2QRCode(guid: String): android.graphics.Bitmap?
     fun share2Clipboard(guid: String): Boolean
+    suspend fun copyAmneziaNative(guid: String): Boolean = false
+    suspend fun createFragmentVariant(guid: String, preset: com.v2ray.ang.core.FragmentPreset): String? = null
 
     fun sendMsg2Service(msgId: Int, content: String)
     fun sendMsg2TestService(msg: TestServiceMessage, requestId: String? = null)
     fun cancelAllPing()
-    fun testCurrentServerRealPing(requestId: String)
+    suspend fun testCurrentServerRealPing(requestId: String, profileGuid: String)
 
     fun syncSubscriptions()
     fun initAssets()

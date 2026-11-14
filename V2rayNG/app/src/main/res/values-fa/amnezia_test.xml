@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="awg_test_unsupported">تست اتصال Amnezia برای تشخیص مطمئن شبکهٔ VPN به Android 11 یا جدیدتر نیاز دارد.</string>
+    <string name="awg_test_no_vpn">شبکهٔ VPN متعلق به برنامه آماده نیست؛ دوباره وصل شوید و تست کنید.</string>
+    <string name="awg_test_invalid_url">نشانی تست باید HTTPS و بدون نام کاربری یا رمز باشد.</string>
+    <string name="awg_test_timeout">مهلت تست اتصال Amnezia پایان یافت.</string>
+    <string name="awg_test_http_response">سرور تست پاسخ موفق HTTP نداد.</string>
+    <string name="awg_test_network_error">اتصال HTTPS از تونل Amnezia برقرار نشد؛ کانفیگ، DNS و مسیرها را بررسی کنید.</string>
+</resources>

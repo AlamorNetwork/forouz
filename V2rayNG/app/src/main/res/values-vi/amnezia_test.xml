@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="awg_test_unsupported">Kiểm tra Amnezia cần Android 11 trở lên để xác định an toàn VPN của ứng dụng.</string>
+    <string name="awg_test_no_vpn">Mạng VPN của ứng dụng chưa sẵn sàng. Hãy kết nối lại rồi thử lại.</string>
+    <string name="awg_test_invalid_url">URL kiểm tra phải dùng HTTPS và không có tên người dùng hay mật khẩu.</string>
+    <string name="awg_test_timeout">Kiểm tra kết nối Amnezia đã hết thời gian chờ.</string>
+    <string name="awg_test_http_response">Máy chủ kiểm tra không trả về phản hồi HTTP thành công.</string>
+    <string name="awg_test_network_error">HTTPS qua đường hầm Amnezia thất bại. Kiểm tra cấu hình, DNS và định tuyến.</string>
+</resources>

@@ -1,0 +1,17 @@
+<resources>
+    <string name="lab_home">সংযোগ</string>
+    <string name="lab_vpn_on">VPN চালু</string>
+    <string name="lab_vpn_off">VPN বন্ধ</string>
+    <string name="lab_connected_title">সংযুক্ত</string>
+    <string name="lab_ready_title">সংযোগের জন্য প্রস্তুত</string>
+    <string name="lab_empty_hint">শুরু করতে একটি কনফিগারেশন যোগ করুন।</string>
+    <string name="lab_connection_hint">নির্বাচিত কনফিগারেশন দিয়ে সংযোগ করুন।</string>
+    <string name="lab_selected_profile">নির্বাচিত কনফিগারেশন</string>
+    <string name="lab_choose_profile">কনফিগারেশন বাছুন</string>
+    <string name="lab_protocol">প্রোটোকল</string>
+    <string name="lab_last_delay">সর্বশেষ বিলম্ব পরীক্ষা</string>
+    <string name="lab_delay_ms">%1$d মিলিসেকেন্ড</string>
+    <string name="lab_not_measured">পরিমাপ করা হয়নি</string>
+    <string name="lab_test_connection">সংযোগ পরীক্ষা</string>
+    <string name="awg_copy_native">নেটিভ AmneziaWG কনফিগারেশন কপি করুন</string>
+</resources>

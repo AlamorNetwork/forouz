@@ -34,7 +34,80 @@ import kotlinx.coroutines.flow.drop
 
 internal class ProfileStorageException(message: String) : IllegalStateException(message)
 
+/** New local copies have no selection side effect; compensate both records on write failure. */
+internal fun persistLocalTrial(
+    writePayload: () -> Boolean,
+    publishIndex: () -> Boolean,
+    restoreIndex: () -> Boolean,
+    removePayload: () -> Unit,
+) {
+    try {
+        if (!writePayload()) throw ProfileStorageException("Failed to save local trial payload")
+        if (!publishIndex()) throw ProfileStorageException("Failed to publish local trial index")
+    } catch (error: Exception) {
+        // Try both cleanups even if one fails. The caller logs the error and suppressed failures.
+        try { if (!restoreIndex()) throw ProfileStorageException("Failed to restore local trial index") }
+        catch (rollback: Exception) { error.addSuppressed(rollback) }
+        try { removePayload() } catch (rollback: Exception) { error.addSuppressed(rollback) }
+        throw error
+    }
+}
+
 object MmkvManager {
+
+    // Health has an independent bounded document; legacy 10 MB reports remain unchanged.
+    private val healthStorage by lazy { MMKV.mmkvWithID("HEALTH_V1", MMKV.MULTI_PROCESS_MODE) }
+    internal fun readHealthRuns(): List<com.v2ray.ang.core.health.HealthRun> = synchronized(healthStorage) {
+        healthStorage.lock()
+        try { com.v2ray.ang.core.health.HealthRecords.decode(healthStorage.decodeString("runs")) }
+        finally { healthStorage.unlock() }
+    }
+    internal fun saveHealthRun(run: com.v2ray.ang.core.health.HealthRun) = synchronized(healthStorage) {
+        healthStorage.lock()
+        try {
+            val records = com.v2ray.ang.core.health.HealthRecords
+            val next = records.replace(records.decode(healthStorage.decodeString("runs")), run)
+            if (!healthStorage.encode("runs", records.encode(next))) throw ProfileStorageException("Health history write failed")
+        } finally { healthStorage.unlock() }
+    }
+
+
+    // One versioned blob: a result and its history index cannot be committed separately.
+    private val laboratoryStorage by lazy { MMKV.mmkvWithID("LABORATORY_V1", MMKV.MULTI_PROCESS_MODE) }
+
+    internal fun readLaboratoryRuns(): List<com.v2ray.ang.core.lab.LabRunRecord> = synchronized(laboratoryStorage) {
+        laboratoryStorage.lock()
+        try { com.v2ray.ang.core.lab.LabRecords.decode(laboratoryStorage.decodeString("runs")) }
+        finally { laboratoryStorage.unlock() }
+    }
+
+    internal fun saveLaboratoryRun(record: com.v2ray.ang.core.lab.LabRunRecord) = synchronized(laboratoryStorage) {
+        laboratoryStorage.lock()
+        try {
+            val records = com.v2ray.ang.core.lab.LabRecords
+            val next = records.replace(records.decode(laboratoryStorage.decodeString("runs")), record)
+            if (!laboratoryStorage.encode("runs", records.encode(next))) throw ProfileStorageException("Lab history write failed")
+        } finally { laboratoryStorage.unlock() }
+    }
+
+    fun createLocalTrial(profile: ProfileItem): String = withProfileIndexLock {
+        require(profile.subscriptionId.isEmpty())
+        val guid = Utils.getUuid()
+        check(!profileFullStorage.containsKey(guid))
+        val indexKey = serverListKey(DEFAULT_SUBSCRIPTION_ID)
+        val previousIndex = mainStorage.decodeString(indexKey)
+        val nextIndex = decodeServerList(DEFAULT_SUBSCRIPTION_ID).toMutableList().apply { add(0, guid) }
+        persistLocalTrial(
+            writePayload = { profileFullStorage.encode(guid, JsonUtil.toJson(profile)) },
+            publishIndex = { persistServerList(nextIndex, DEFAULT_SUBSCRIPTION_ID) },
+            restoreIndex = {
+                if (previousIndex == null) { mainStorage.remove(indexKey); true }
+                else mainStorage.encode(indexKey, previousIndex)
+            },
+            removePayload = { profileFullStorage.remove(guid) },
+        )
+        guid
+    }
 
     //region private
 

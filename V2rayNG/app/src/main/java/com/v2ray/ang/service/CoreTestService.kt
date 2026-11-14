@@ -8,7 +8,6 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.R
-import com.v2ray.ang.core.CoreNativeManager
 import com.v2ray.ang.dto.RealPingEvent
 import com.v2ray.ang.dto.RealPingResult
 import com.v2ray.ang.dto.TestServiceMessage
@@ -46,14 +45,6 @@ class CoreTestService : Service() {
             getString(R.string.action_cancel),
             pendingIntent
         ).build()
-    }
-
-    /**
-     * Initializes the V2Ray environment.
-     */
-    override fun onCreate() {
-        super.onCreate()
-        CoreNativeManager.initCoreEnv(this)
     }
 
     /**
@@ -151,6 +142,7 @@ class CoreTestService : Service() {
             }
 
             is RealPingEvent.Result -> {
+                if (!event.measured) return
                 MmkvManager.encodeServerTestDelayMillis(event.guid, event.delayMillis)
                 MessageHelper.sendMsg2UI(
                     this,
@@ -161,21 +153,25 @@ class CoreTestService : Service() {
             }
 
             is RealPingEvent.Finish -> {
-                if (message.subscriptionId.isNotEmpty()) {
-                    if (MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_REMOVE_INVALID_AFTER_TEST, false)) {
-                        AngConfigManager.removeInvalidServer(message.subscriptionId)
-                    }
+                try {
+                    if (message.subscriptionId.isNotEmpty()) {
+                        if (MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_REMOVE_INVALID_AFTER_TEST, false)) {
+                            AngConfigManager.removeInvalidServer(message.subscriptionId)
+                        }
 
-                    if (MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SORT_AFTER_TEST, false)) {
-                        AngConfigManager.sortByTestResultsForSub(message.subscriptionId)
+                        if (MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SORT_AFTER_TEST, false)) {
+                            AngConfigManager.sortByTestResultsForSub(message.subscriptionId)
+                        }
                     }
-                }
-
-                MessageHelper.sendMsg2UI(this, AppConfig.MSG_MEASURE_CONFIG_FINISH, event.status, requestId)
-                onWorkerDone()
-                if (activeWorkers.isEmpty()) {
-                    NotificationHelper.stopForeground(this)
-                    stopSelf()
+                } catch (e: Exception) {
+                    LogUtil.e(AppConfig.TAG, "Batch probe post-processing failed group=${message.subscriptionId}", e)
+                } finally {
+                    MessageHelper.sendMsg2UI(this, AppConfig.MSG_MEASURE_CONFIG_FINISH, event.status, requestId)
+                    onWorkerDone()
+                    if (activeWorkers.isEmpty()) {
+                        NotificationHelper.stopForeground(this)
+                        stopSelf()
+                    }
                 }
             }
         }

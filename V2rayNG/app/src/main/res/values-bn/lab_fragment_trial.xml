@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_fragment_baseline">পরীক্ষা: খণ্ডিত নয়</string>
+    <string name="lab_fragment_light">পরীক্ষা: হালকা খণ্ডন</string>
+    <string name="lab_fragment_small">পরীক্ষা: ছোট খণ্ড</string>
+    <string name="lab_fragment_variant_name">%1$s · %2$s</string>
+    <string name="lab_fragment_unavailable">এই প্রোফাইল, ট্রান্সপোর্ট বা কাস্টম মাস্কের জন্য পরীক্ষা অনুপলব্ধ।</string>
+    <string name="lab_fragment_saved">স্থানীয় পরীক্ষার প্রোফাইল তৈরি হয়েছে। এটি বেছে নিয়ে আবার সংযোগ করুন।</string>
+</resources>

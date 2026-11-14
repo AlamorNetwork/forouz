@@ -13,6 +13,7 @@ import com.v2ray.ang.dto.entities.SubscriptionItem
 import com.v2ray.ang.dto.entities.SubscriptionUsageInfo
 import com.v2ray.ang.enums.EConfigType
 import com.v2ray.ang.extension.isNotNullEmpty
+import com.v2ray.ang.fmt.AmneziaWgFmt
 import com.v2ray.ang.fmt.CustomFmt
 import com.v2ray.ang.fmt.Hysteria2Fmt
 import com.v2ray.ang.fmt.ShadowsocksFmt
@@ -134,6 +135,11 @@ object AngConfigManager {
     fun shareFullContent2Clipboard(context: Context, guid: String?): Int {
         try {
             if (guid == null) return -1
+            if (MmkvManager.decodeServerConfig(guid)?.configType == EConfigType.AMNEZIAWG) {
+                val raw = MmkvManager.decodeServerRaw(guid) ?: return -1
+                Utils.setClipboard(context, raw)
+                return 0
+            }
             val result = CoreConfigManager.getV2rayConfig(context, guid)
             if (result.status) {
                 Utils.setClipboard(context, result.content)
@@ -157,6 +163,7 @@ object AngConfigManager {
         try {
             val config = MmkvManager.decodeServerConfig(guid) ?: return ""
 
+            if (config.configType == EConfigType.AMNEZIAWG) return MmkvManager.decodeServerRaw(guid).orEmpty()
             return config.configType.protocolScheme + when (config.configType) {
                 EConfigType.VMESS -> VmessFmt.toUri(config)
                 EConfigType.SHADOWSOCKS -> ShadowsocksFmt.toUri(config)
@@ -183,6 +190,27 @@ object AngConfigManager {
      */
     fun importBatchConfig(server: String?, subid: String, append: Boolean): Pair<Int, Int> {
         return try {
+            if (server?.trim()?.startsWith("vpn://") == true) {
+                try {
+                val envelope = com.v2ray.ang.fmt.AmneziaVpnLink.decode(server.trim())
+                val raw = if (com.v2ray.ang.fmt.AmneziaVpnLink.isManaged(envelope))
+                    com.v2ray.ang.core.amnezia.AmneziaGateway.resolve(envelope)
+                else com.v2ray.ang.fmt.AmneziaVpnLink.embeddedConfig(envelope)
+                val profile = AmneziaWgFmt.parse(raw).apply {
+                    subscriptionId = subid
+                    description = generateDescription(this)
+                }
+                commitProfiles(listOf(ParsedProfile(profile, raw)), subid, append)
+                return 1 to 0
+                } catch (e: com.v2ray.ang.core.amnezia.AmneziaGateway.CaptchaRequired) {
+                    throw e
+                } catch (e: com.v2ray.ang.core.amnezia.AmneziaGatewayFailure) {
+                    throw e
+                } catch (e: Exception) {
+                    val safeStatus = Regex("Amnezia gateway HTTP [0-9]{3}").find(e.message.orEmpty())?.value
+                    throw IllegalStateException(safeStatus ?: "Amnezia link import failed (${e.javaClass.simpleName})")
+                }
+            }
             var count = parseBatchConfig(Utils.decode(server), subid, append)
             if (count <= 0) {
                 count = parseBatchConfig(server, subid, append)
@@ -371,9 +399,10 @@ object AngConfigManager {
                 LogUtil.e(AppConfig.TAG, "Failed to parse custom config server as single config", e)
             }
             return 0
-        } else if (server.startsWith("[Interface]") && server.contains("[Peer]")) {
+        } else if (AmneziaWgFmt.isQuickConfig(server)) {
             try {
-                val config = WireguardFmt.parseWireguardConfFile(server)
+                val config = if (AmneziaWgFmt.isAmneziaConfig(server)) AmneziaWgFmt.parse(server)
+                    else WireguardFmt.parseWireguardConfFile(server)
                 config.subscriptionId = subid
                 config.description = generateDescription(config)
                 commitProfiles(
@@ -385,7 +414,7 @@ object AngConfigManager {
             } catch (e: ProfileStorageException) {
                 throw e
             } catch (e: Exception) {
-                LogUtil.e(AppConfig.TAG, "Failed to parse WireGuard config file", e)
+                LogUtil.w(AppConfig.TAG, "WireGuard/AWG import rejected (${e.javaClass.simpleName})")
             }
             return 0
         } else {
@@ -568,7 +597,7 @@ object AngConfigManager {
         val serverList = MmkvManager.decodeServerList(subId)
         val invalidServers = serverList.filter {
             val aff = MmkvManager.decodeServerAffiliationInfo(it)
-            aff != null && aff.testDelayMillis < 0L
+            aff != null && mayRemoveAfterDelayTest(MmkvManager.decodeServerConfig(it)?.configType, aff.testDelayMillis)
         }
         MmkvManager.removeServers(invalidServers, subId)
     }

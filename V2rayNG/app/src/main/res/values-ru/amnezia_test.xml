@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="awg_test_unsupported">Для безопасного определения собственной VPN-сети тест Amnezia требует Android 11 или новее.</string>
+    <string name="awg_test_no_vpn">VPN-сеть этого приложения не готова. Переподключитесь и повторите попытку.</string>
+    <string name="awg_test_invalid_url">Адрес теста должен использовать HTTPS без имени пользователя и пароля.</string>
+    <string name="awg_test_timeout">Время ожидания теста Amnezia истекло.</string>
+    <string name="awg_test_http_response">Сервер теста не вернул успешный ответ HTTP.</string>
+    <string name="awg_test_network_error">HTTPS через туннель Amnezia не работает. Проверьте конфигурацию, DNS и маршруты.</string>
+</resources>

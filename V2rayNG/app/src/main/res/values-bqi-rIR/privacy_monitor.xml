@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="privacy_title">پایش حریم خصوصی و نشت</string>
+    <string name="privacy_disclosure">بررسی دستی با ipify و Akamai؛ در Xray از پروکسی محلی و در امنزیا از VPN استفاده می‌شود. همهٔ برنامه‌ها سنجیده نمی‌شوند. نتیجه فقط در حافظه می‌ماند.</string>
+    <string name="privacy_ipv4">IPv4</string>
+    <string name="privacy_ipv6">IPv6</string>
+    <string name="privacy_dns">مشاهدهٔ DNS</string>
+    <string name="privacy_running">در حال بررسی… حداکثر ۲۵ ثانیه</string>
+    <string name="privacy_stale">نمونه قدیمی است؛ دوباره بررسی کن</string>
+    <string name="privacy_baseline_captured">نمونهٔ اینترنت بدون VPN ثبت شد</string>
+    <string name="privacy_dns_possible">احتمال خروج DNS از مسیر مورد انتظار؛ resolver در حالت بدون VPN هم دیده شد</string>
+    <string name="privacy_dns_no_match">در این نمونه resolver مشترکی دیده نشد</string>
+    <string name="privacy_baseline_expired">نمونهٔ حالت قطع منقضی شده؛ در حالت قطع دوباره ثبت کن</string>
+    <string name="privacy_network_different">شبکه متفاوت یا نامشخص است؛ مقایسه ممکن نیست</string>
+    <string name="privacy_dns_unavailable">شواهد DNS کافی نیست؛ وضعیت نشت نامشخص است</string>
+    <string name="privacy_need_baseline">برای مقایسهٔ resolverها، نمونهٔ حالت قطع لازم است</string>
+    <string name="privacy_cancelled">بررسی لغو شد</string>
+    <string name="privacy_not_tested">بررسی نشده</string>
+    <string name="privacy_dns_limit">DNS عمومی مشترک می‌تواند عمدی باشد؛ شباهت اثبات نشت و نبود شباهت تضمین نبود نشت نیست.</string>
+    <string name="privacy_vpn_sample">نمونهٔ مسیر VPN · %1$s</string>
+    <string name="privacy_direct_sample">نمونهٔ بدون VPN · %1$s</string>
+    <string name="privacy_android_required">برای تأیید مالکیت شبکهٔ VPN به اندروید ۱۱ یا بالاتر نیاز است.</string>
+    <string name="privacy_vpn_unavailable">شبکهٔ VPN فروز پیدا نشد؛ حالت فقط پروکسی و روت با این تست سنجیده نمی‌شوند.</string>
+    <string name="privacy_disconnect_first">برای نمونهٔ مستقیم، ابتدا همهٔ VPNها را قطع کن.</string>
+    <string name="privacy_network_changed">شبکه حین بررسی تغییر کرد؛ نتیجه کنار گذاشته شد</string>
+    <string name="privacy_failed">بررسی کامل نشد؛ دوباره تلاش کن.</string>
+    <string name="privacy_check">بررسی حریم خصوصی</string>
+    <string name="privacy_capture_baseline">ثبت نمونهٔ بدون VPN</string>
+    <string name="privacy_clear">پاک‌کردن نمونه‌ها</string>
+    <string name="privacy_baseline_consent">این بررسی کوتاه IP و DNS را در حالت قطع VPN، مستقیم از اینترنت فعلی به ipify و Akamai می‌فرستد. سپس VPN را وصل کن و روی همین شبکه تا ۳۰ دقیقه دوباره بررسی کن. چیزی روی دیسک ذخیره نمی‌شود.</string>
+    <string name="privacy_capture">ثبت نمونه</string>
+    <string name="privacy_address_unavailable">اندازه‌گیری نشده / در دسترس نیست</string>
+    <string name="privacy_proxy_dns_unavailable">وضعیت نشت DNS نامشخص است؛ این تست پروکسی Xray مسیر DNS اندروید یا برنامه‌های دیگر را نمی‌سنجد.</string>
+    <string name="privacy_proxy_sample">IP خروجی پروکسی Xray · %1$s</string>
+    <string name="privacy_route_unsupported">این بررسی به اندروید ۱۱ یا بالاتر و مسیر VPN پشتیبانی‌شده نیاز دارد. برای Xray پروکسی SOCKS محلی بدون احراز هویت لازم است؛ حالت روت و فقط پروکسی سنجیده نمی‌شوند.</string>
+</resources>

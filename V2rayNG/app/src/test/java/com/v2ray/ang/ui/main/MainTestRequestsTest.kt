@@ -8,6 +8,15 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class MainTestRequestsTest {
+    @Test fun activeProbeIsBoundToRunningGuidAndSessionInsteadOfTheBrowsedSelection() {
+        val requests = MainTestRequests()
+        val id = requests.beginCurrent("active-guid", "session-one")
+        assertTrue(requests.matchesCurrentTarget(id, "active-guid", "session-one"))
+        assertFalse(requests.matchesCurrentTarget(id, "other-guid", "session-one"))
+        assertFalse(requests.matchesCurrentTarget(id, "active-guid", "session-two"))
+        assertTrue(requests.completeCurrent(id))
+        assertFalse(requests.isTesting)
+    }
     @Test
     fun onlyTheLatestCurrentRequestCanFinishOnce() {
         val requests = MainTestRequests()

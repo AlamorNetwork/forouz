@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_duration">%1$02d:%2$02d:%3$02d</string>
+    <string name="lab_notification_rates">↓ %1$s  •  ↑ %2$s</string>
+    <string name="lab_notification_permission">VPN অনুমতি প্রয়োজন। সংযোগ করতে অ্যাপ খুলুন।</string>
+    <string name="lab_notification_disconnected">সংযোগ বিচ্ছিন্ন। আবার সংযোগ করতে সংযোগ বোতাম চাপুন।</string>
+    <string name="lab_open_app">অ্যাপ খুলুন</string>
+    <string name="lab_traffic_waiting">ট্রাফিক নমুনার অপেক্ষায়…</string>
+    <string name="lab_traffic_unavailable">এই সংযোগের ট্রাফিক পরিসংখ্যান পাওয়া যাচ্ছে না।</string>
+    <string name="lab_download">ডাউনলোড</string>
+    <string name="lab_upload">আপলোড</string>
+    <string name="lab_total_bytes">মোট %1$s</string>
+    <string name="lab_chart_description">৯০ সেকেন্ডের Xray ট্রাফিক। ডাউনলোড %1$s, আপলোড %2$s।</string>
+    <string name="lab_traffic_window">৯০ সেকেন্ড • স্কেল %1$s</string>
+    <string name="lab_traffic_scope">Xray প্রক্সি ও সরাসরি ট্রাফিক। নিরবচ্ছিন্ন: ডাউনলোড; ভাঙা: আপলোড। বাইটের হার, গতি পরীক্ষা নয়।</string>
+    <string name="lab_uptime">সংযোগের সময় %1$s</string>
+</resources>

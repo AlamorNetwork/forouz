@@ -1,0 +1,283 @@
+{
+  "version": "1.0.1",
+  "application_id": "ir.alamornetwork.forouz",
+  "product": "FOROUZ",
+  "certificate_sha256": "ed606e4fdaaa98f988d6dcf38dabf263672743711e2f5dd5f57b7cbddc2930f4",
+  "tests": {
+    "Playstore": {
+      "tests": 356,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "Fdroid": {
+      "tests": 356,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "lint": {
+    "PlaystoreDebug": {
+      "Warning": 368,
+      "Hint": 1
+    },
+    "PlaystoreRelease": {
+      "Warning": 344,
+      "Hint": 1
+    },
+    "FdroidDebug": {
+      "Warning": 384,
+      "Hint": 1
+    },
+    "FdroidRelease": {
+      "Warning": 360,
+      "Hint": 1
+    }
+  },
+  "repository": "AlamorNetwork/forouz",
+  "privacy_scope": "Xray daemon-admitted SOCKS egress only, DNS leak status unknown; Amnezia owned VPN measurement; optional confirmed direct reference.",
+  "build_origin": "Locally built and verified; hosted workflow not run.",
+  "upstream_app_base": "57907cf354d9769200ed4717b4430d605abe0952",
+  "native_provenance": "NATIVE-INPUTS.json and V2rayNG/amnezia/NATIVE-PROVENANCE.json",
+  "artifacts": [
+    {
+      "flavor": "Playstore",
+      "abi": "universal",
+      "size_bytes": 78163344,
+      "sha256": "3c7dbca4bc3dd3b54fe43d992334aaeecd18e110777dba27dffdb2429f30cae5",
+      "package": "ir.alamornetwork.forouz",
+      "version_code": 4000766,
+      "native_sha256": {
+        "lib/arm64-v8a/libandroidx.graphics.path.so": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6",
+        "lib/arm64-v8a/libgojni.so": "bd76cd59745f5146ced9371e25e203edfc24a140302124b20b33669adb3a1efb",
+        "lib/arm64-v8a/libhev-socks5-tunnel.so": "fe49273bb219272a9217113ea353a128f91428ea7d3df5256190a52c1d1c0a2a",
+        "lib/arm64-v8a/libhevsockstun.so": "9a211d6814a2f9b2ccab8e3660d9bdaa7516d76c698f7904dbdad8a13a29d1e4",
+        "lib/arm64-v8a/libimage_processing_util_jni.so": "0292b063fafccf734472cbb59588e756c2dbca907c72021ba6fbf126385508a2",
+        "lib/arm64-v8a/libmmkv.so": "4943cc7195c24431d1569a0659b45fc49a687ac58089515a8b5c57f672ca1dba",
+        "lib/arm64-v8a/libsurface_util_jni.so": "a5c9d1928ea92ec7a94dff8cf666e7739cd734198b9f0ae1d4e28ea3c86516ba",
+        "lib/arm64-v8a/libwg-go.so": "8bd1d044fcf1828924981bb8b1d66571b884c16d2d779de603d5b359d6ed4416",
+        "lib/armeabi-v7a/libandroidx.graphics.path.so": "41399eba6fc2a60f6f14642375c1824f3cf25eb8fec7397d753730a3ceda3e2b",
+        "lib/armeabi-v7a/libgojni.so": "241d7661f928329344949d0c26fb0e0d9ab45b4a88f131bfbdefb67a91b42921",
+        "lib/armeabi-v7a/libhev-socks5-tunnel.so": "b7b733de7cb9f8adc2669e36e6c9172a5541ba1569b6392de484446b1b3d3c35",
+        "lib/armeabi-v7a/libhevsockstun.so": "1d2f761316f69580137bfdbe5204221d77e21ec15d0a93159c05c9f5314114d3",
+        "lib/armeabi-v7a/libimage_processing_util_jni.so": "05973c0cf8e8dd281c8ec505c41814b78b740461056925bb41120594d7c35dcd",
+        "lib/armeabi-v7a/libmmkv.so": "64aa9ab475ebde3595120e18d1f3576f6a466cc7481a0e126d52e679b8e2f238",
+        "lib/armeabi-v7a/libsurface_util_jni.so": "78eb0b10e91b819be97cb7daa8c97fb757fa6d07cb80ccb7e92c113b45bda9be",
+        "lib/armeabi-v7a/libwg-go.so": "f0f7e76889b4fd19c5f58eb940ece4424aeb1d754426f421c2e8d38472722045",
+        "lib/x86/libandroidx.graphics.path.so": "eb0570b41fd3bff25d8204a967c03bd7550719e768b791f680cc40cbe35f29af",
+        "lib/x86/libgojni.so": "c9742f97d415b2c536ce7d766cd8ccc97ed9812c7f63e2159c9e0f8be0249ac1",
+        "lib/x86/libhev-socks5-tunnel.so": "e5089a7eeab177ee734dc3e8e573c5494dd9e2db3bb765c2dc6d5ba38ba40c13",
+        "lib/x86/libhevsockstun.so": "3cacbcbbb5313e8b7f2ae6cb2e9a753e14c950f96c2421090e88c109ee208ce6",
+        "lib/x86/libimage_processing_util_jni.so": "b52f93b57d408b2306071f9de1a4b0b5684c1b86563e34a8711d80a1e6c03f94",
+        "lib/x86/libmmkv.so": "68f9e6d13a3fe1b2a52de058d367421773b3c01e058849dcb228a7ccba10395d",
+        "lib/x86/libsurface_util_jni.so": "3048a535d701579c87c4ad91283cd1246d2c85399a164ee4720642037ea31727",
+        "lib/x86/libwg-go.so": "14d137cb95139fae1461ff75215f6dbf2203830d03a6c2d09d0830be0e59ab86",
+        "lib/x86_64/libandroidx.graphics.path.so": "4e56c996f13670e70082658de7880c4020eabf4f25e43387f88ed78a713fc9f0",
+        "lib/x86_64/libgojni.so": "549b19f35ddd83fa56d60838adec6d0fb99c2736cc09ecdb388924829462bea9",
+        "lib/x86_64/libhev-socks5-tunnel.so": "5582a4736fce21b4390b1c657c7e7a4bc4eeaa630983b7d60882a680ce3bc517",
+        "lib/x86_64/libhevsockstun.so": "5ef70c72a35baa4da43e17898964122b35ba1888c5c76132528fc7e9a2d5de47",
+        "lib/x86_64/libimage_processing_util_jni.so": "112703727717651e69e91f3ea2c3c2311737ee5809a909c9d342a811b6c7c069",
+        "lib/x86_64/libmmkv.so": "4b639aa8fd190b7a6f28dc88be7668e23f26da2edc0d8976cc24dd342089a310",
+        "lib/x86_64/libsurface_util_jni.so": "e5311942b4fce0f7f2505d41150cf9921e558a6368929cb73127450f74dd4fe4",
+        "lib/x86_64/libwg-go.so": "05dd7e0df77dda53d070848d8f1b176578629ff0ed0eacbe36f451239637ad7d"
+      },
+      "filename": "FOROUZ_1.0.1-playstore-release_universal.apk"
+    },
+    {
+      "flavor": "Playstore",
+      "abi": "armeabi-v7a",
+      "size_bytes": 34863565,
+      "sha256": "2ecc60a206a52dfa0010cbaa8fb7c45c63391366de44ceeb3d3ae57034dc9aea",
+      "package": "ir.alamornetwork.forouz",
+      "version_code": 4000766,
+      "native_sha256": {
+        "lib/armeabi-v7a/libandroidx.graphics.path.so": "41399eba6fc2a60f6f14642375c1824f3cf25eb8fec7397d753730a3ceda3e2b",
+        "lib/armeabi-v7a/libgojni.so": "241d7661f928329344949d0c26fb0e0d9ab45b4a88f131bfbdefb67a91b42921",
+        "lib/armeabi-v7a/libhev-socks5-tunnel.so": "b7b733de7cb9f8adc2669e36e6c9172a5541ba1569b6392de484446b1b3d3c35",
+        "lib/armeabi-v7a/libhevsockstun.so": "1d2f761316f69580137bfdbe5204221d77e21ec15d0a93159c05c9f5314114d3",
+        "lib/armeabi-v7a/libimage_processing_util_jni.so": "05973c0cf8e8dd281c8ec505c41814b78b740461056925bb41120594d7c35dcd",
+        "lib/armeabi-v7a/libmmkv.so": "64aa9ab475ebde3595120e18d1f3576f6a466cc7481a0e126d52e679b8e2f238",
+        "lib/armeabi-v7a/libsurface_util_jni.so": "78eb0b10e91b819be97cb7daa8c97fb757fa6d07cb80ccb7e92c113b45bda9be",
+        "lib/armeabi-v7a/libwg-go.so": "f0f7e76889b4fd19c5f58eb940ece4424aeb1d754426f421c2e8d38472722045"
+      },
+      "filename": "FOROUZ_1.0.1-playstore-release_armeabi-v7a.apk"
+    },
+    {
+      "flavor": "Playstore",
+      "abi": "x86_64",
+      "size_bytes": 35434701,
+      "sha256": "28c96cb1fb08a57b6f5d1b32f433a94ac7565db5cd7550eef8d7f88c2333b10c",
+      "package": "ir.alamornetwork.forouz",
+      "version_code": 4000766,
+      "native_sha256": {
+        "lib/x86_64/libandroidx.graphics.path.so": "4e56c996f13670e70082658de7880c4020eabf4f25e43387f88ed78a713fc9f0",
+        "lib/x86_64/libgojni.so": "549b19f35ddd83fa56d60838adec6d0fb99c2736cc09ecdb388924829462bea9",
+        "lib/x86_64/libhev-socks5-tunnel.so": "5582a4736fce21b4390b1c657c7e7a4bc4eeaa630983b7d60882a680ce3bc517",
+        "lib/x86_64/libhevsockstun.so": "5ef70c72a35baa4da43e17898964122b35ba1888c5c76132528fc7e9a2d5de47",
+        "lib/x86_64/libimage_processing_util_jni.so": "112703727717651e69e91f3ea2c3c2311737ee5809a909c9d342a811b6c7c069",
+        "lib/x86_64/libmmkv.so": "4b639aa8fd190b7a6f28dc88be7668e23f26da2edc0d8976cc24dd342089a310",
+        "lib/x86_64/libsurface_util_jni.so": "e5311942b4fce0f7f2505d41150cf9921e558a6368929cb73127450f74dd4fe4",
+        "lib/x86_64/libwg-go.so": "05dd7e0df77dda53d070848d8f1b176578629ff0ed0eacbe36f451239637ad7d"
+      },
+      "filename": "FOROUZ_1.0.1-playstore-release_x86_64.apk"
+    },
+    {
+      "flavor": "Playstore",
+      "abi": "x86",
+      "size_bytes": 35997777,
+      "sha256": "ff88400b7526d4116de59c19135359de0a030687c2fc50677ad9473471551a41",
+      "package": "ir.alamornetwork.forouz",
+      "version_code": 4000766,
+      "native_sha256": {
+        "lib/x86/libandroidx.graphics.path.so": "eb0570b41fd3bff25d8204a967c03bd7550719e768b791f680cc40cbe35f29af",
+        "lib/x86/libgojni.so": "c9742f97d415b2c536ce7d766cd8ccc97ed9812c7f63e2159c9e0f8be0249ac1",
+        "lib/x86/libhev-socks5-tunnel.so": "e5089a7eeab177ee734dc3e8e573c5494dd9e2db3bb765c2dc6d5ba38ba40c13",
+        "lib/x86/libhevsockstun.so": "3cacbcbbb5313e8b7f2ae6cb2e9a753e14c950f96c2421090e88c109ee208ce6",
+        "lib/x86/libimage_processing_util_jni.so": "b52f93b57d408b2306071f9de1a4b0b5684c1b86563e34a8711d80a1e6c03f94",
+        "lib/x86/libmmkv.so": "68f9e6d13a3fe1b2a52de058d367421773b3c01e058849dcb228a7ccba10395d",
+        "lib/x86/libsurface_util_jni.so": "3048a535d701579c87c4ad91283cd1246d2c85399a164ee4720642037ea31727",
+        "lib/x86/libwg-go.so": "14d137cb95139fae1461ff75215f6dbf2203830d03a6c2d09d0830be0e59ab86"
+      },
+      "filename": "FOROUZ_1.0.1-playstore-release_x86.apk"
+    },
+    {
+      "flavor": "Playstore",
+      "abi": "arm64-v8a",
+      "size_bytes": 34281521,
+      "sha256": "4e0a11474bc906f266453ffb5c8a27d16bbfb2ae685a9d8d5757a9a1e4cce293",
+      "package": "ir.alamornetwork.forouz",
+      "version_code": 4000766,
+      "native_sha256": {
+        "lib/arm64-v8a/libandroidx.graphics.path.so": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6",
+        "lib/arm64-v8a/libgojni.so": "bd76cd59745f5146ced9371e25e203edfc24a140302124b20b33669adb3a1efb",
+        "lib/arm64-v8a/libhev-socks5-tunnel.so": "fe49273bb219272a9217113ea353a128f91428ea7d3df5256190a52c1d1c0a2a",
+        "lib/arm64-v8a/libhevsockstun.so": "9a211d6814a2f9b2ccab8e3660d9bdaa7516d76c698f7904dbdad8a13a29d1e4",
+        "lib/arm64-v8a/libimage_processing_util_jni.so": "0292b063fafccf734472cbb59588e756c2dbca907c72021ba6fbf126385508a2",
+        "lib/arm64-v8a/libmmkv.so": "4943cc7195c24431d1569a0659b45fc49a687ac58089515a8b5c57f672ca1dba",
+        "lib/arm64-v8a/libsurface_util_jni.so": "a5c9d1928ea92ec7a94dff8cf666e7739cd734198b9f0ae1d4e28ea3c86516ba",
+        "lib/arm64-v8a/libwg-go.so": "8bd1d044fcf1828924981bb8b1d66571b884c16d2d779de603d5b359d6ed4416"
+      },
+      "filename": "FOROUZ_1.0.1-playstore-release_arm64-v8a.apk"
+    },
+    {
+      "flavor": "Fdroid",
+      "abi": "universal",
+      "size_bytes": 78163344,
+      "sha256": "b86debf8d4bad8729e0193646f1122d74cf60a3333e70b31c19a465ad72774e1",
+      "package": "ir.alamornetwork.forouz.fdroid",
+      "version_code": 5076600,
+      "native_sha256": {
+        "lib/arm64-v8a/libandroidx.graphics.path.so": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6",
+        "lib/arm64-v8a/libgojni.so": "bd76cd59745f5146ced9371e25e203edfc24a140302124b20b33669adb3a1efb",
+        "lib/arm64-v8a/libhev-socks5-tunnel.so": "fe49273bb219272a9217113ea353a128f91428ea7d3df5256190a52c1d1c0a2a",
+        "lib/arm64-v8a/libhevsockstun.so": "9a211d6814a2f9b2ccab8e3660d9bdaa7516d76c698f7904dbdad8a13a29d1e4",
+        "lib/arm64-v8a/libimage_processing_util_jni.so": "0292b063fafccf734472cbb59588e756c2dbca907c72021ba6fbf126385508a2",
+        "lib/arm64-v8a/libmmkv.so": "4943cc7195c24431d1569a0659b45fc49a687ac58089515a8b5c57f672ca1dba",
+        "lib/arm64-v8a/libsurface_util_jni.so": "a5c9d1928ea92ec7a94dff8cf666e7739cd734198b9f0ae1d4e28ea3c86516ba",
+        "lib/arm64-v8a/libwg-go.so": "8bd1d044fcf1828924981bb8b1d66571b884c16d2d779de603d5b359d6ed4416",
+        "lib/armeabi-v7a/libandroidx.graphics.path.so": "41399eba6fc2a60f6f14642375c1824f3cf25eb8fec7397d753730a3ceda3e2b",
+        "lib/armeabi-v7a/libgojni.so": "241d7661f928329344949d0c26fb0e0d9ab45b4a88f131bfbdefb67a91b42921",
+        "lib/armeabi-v7a/libhev-socks5-tunnel.so": "b7b733de7cb9f8adc2669e36e6c9172a5541ba1569b6392de484446b1b3d3c35",
+        "lib/armeabi-v7a/libhevsockstun.so": "1d2f761316f69580137bfdbe5204221d77e21ec15d0a93159c05c9f5314114d3",
+        "lib/armeabi-v7a/libimage_processing_util_jni.so": "05973c0cf8e8dd281c8ec505c41814b78b740461056925bb41120594d7c35dcd",
+        "lib/armeabi-v7a/libmmkv.so": "64aa9ab475ebde3595120e18d1f3576f6a466cc7481a0e126d52e679b8e2f238",
+        "lib/armeabi-v7a/libsurface_util_jni.so": "78eb0b10e91b819be97cb7daa8c97fb757fa6d07cb80ccb7e92c113b45bda9be",
+        "lib/armeabi-v7a/libwg-go.so": "f0f7e76889b4fd19c5f58eb940ece4424aeb1d754426f421c2e8d38472722045",
+        "lib/x86/libandroidx.graphics.path.so": "eb0570b41fd3bff25d8204a967c03bd7550719e768b791f680cc40cbe35f29af",
+        "lib/x86/libgojni.so": "c9742f97d415b2c536ce7d766cd8ccc97ed9812c7f63e2159c9e0f8be0249ac1",
+        "lib/x86/libhev-socks5-tunnel.so": "e5089a7eeab177ee734dc3e8e573c5494dd9e2db3bb765c2dc6d5ba38ba40c13",
+        "lib/x86/libhevsockstun.so": "3cacbcbbb5313e8b7f2ae6cb2e9a753e14c950f96c2421090e88c109ee208ce6",
+        "lib/x86/libimage_processing_util_jni.so": "b52f93b57d408b2306071f9de1a4b0b5684c1b86563e34a8711d80a1e6c03f94",
+        "lib/x86/libmmkv.so": "68f9e6d13a3fe1b2a52de058d367421773b3c01e058849dcb228a7ccba10395d",
+        "lib/x86/libsurface_util_jni.so": "3048a535d701579c87c4ad91283cd1246d2c85399a164ee4720642037ea31727",
+        "lib/x86/libwg-go.so": "14d137cb95139fae1461ff75215f6dbf2203830d03a6c2d09d0830be0e59ab86",
+        "lib/x86_64/libandroidx.graphics.path.so": "4e56c996f13670e70082658de7880c4020eabf4f25e43387f88ed78a713fc9f0",
+        "lib/x86_64/libgojni.so": "549b19f35ddd83fa56d60838adec6d0fb99c2736cc09ecdb388924829462bea9",
+        "lib/x86_64/libhev-socks5-tunnel.so": "5582a4736fce21b4390b1c657c7e7a4bc4eeaa630983b7d60882a680ce3bc517",
+        "lib/x86_64/libhevsockstun.so": "5ef70c72a35baa4da43e17898964122b35ba1888c5c76132528fc7e9a2d5de47",
+        "lib/x86_64/libimage_processing_util_jni.so": "112703727717651e69e91f3ea2c3c2311737ee5809a909c9d342a811b6c7c069",
+        "lib/x86_64/libmmkv.so": "4b639aa8fd190b7a6f28dc88be7668e23f26da2edc0d8976cc24dd342089a310",
+        "lib/x86_64/libsurface_util_jni.so": "e5311942b4fce0f7f2505d41150cf9921e558a6368929cb73127450f74dd4fe4",
+        "lib/x86_64/libwg-go.so": "05dd7e0df77dda53d070848d8f1b176578629ff0ed0eacbe36f451239637ad7d"
+      },
+      "filename": "FOROUZ_1.0.1-fdroid-release_universal.apk"
+    },
+    {
+      "flavor": "Fdroid",
+      "abi": "armeabi-v7a",
+      "size_bytes": 34863565,
+      "sha256": "df15e447322a38d04441b081b8880ecdc51a5686ff1d26a3db9ac437c35d3295",
+      "package": "ir.alamornetwork.forouz.fdroid",
+      "version_code": 5076602,
+      "native_sha256": {
+        "lib/armeabi-v7a/libandroidx.graphics.path.so": "41399eba6fc2a60f6f14642375c1824f3cf25eb8fec7397d753730a3ceda3e2b",
+        "lib/armeabi-v7a/libgojni.so": "241d7661f928329344949d0c26fb0e0d9ab45b4a88f131bfbdefb67a91b42921",
+        "lib/armeabi-v7a/libhev-socks5-tunnel.so": "b7b733de7cb9f8adc2669e36e6c9172a5541ba1569b6392de484446b1b3d3c35",
+        "lib/armeabi-v7a/libhevsockstun.so": "1d2f761316f69580137bfdbe5204221d77e21ec15d0a93159c05c9f5314114d3",
+        "lib/armeabi-v7a/libimage_processing_util_jni.so": "05973c0cf8e8dd281c8ec505c41814b78b740461056925bb41120594d7c35dcd",
+        "lib/armeabi-v7a/libmmkv.so": "64aa9ab475ebde3595120e18d1f3576f6a466cc7481a0e126d52e679b8e2f238",
+        "lib/armeabi-v7a/libsurface_util_jni.so": "78eb0b10e91b819be97cb7daa8c97fb757fa6d07cb80ccb7e92c113b45bda9be",
+        "lib/armeabi-v7a/libwg-go.so": "f0f7e76889b4fd19c5f58eb940ece4424aeb1d754426f421c2e8d38472722045"
+      },
+      "filename": "FOROUZ_1.0.1-fdroid-release_armeabi-v7a.apk"
+    },
+    {
+      "flavor": "Fdroid",
+      "abi": "x86_64",
+      "size_bytes": 35434701,
+      "sha256": "20e6b993889423cc98964be4882dd66224e5559084d631d39af18c11abd38aca",
+      "package": "ir.alamornetwork.forouz.fdroid",
+      "version_code": 5076603,
+      "native_sha256": {
+        "lib/x86_64/libandroidx.graphics.path.so": "4e56c996f13670e70082658de7880c4020eabf4f25e43387f88ed78a713fc9f0",
+        "lib/x86_64/libgojni.so": "549b19f35ddd83fa56d60838adec6d0fb99c2736cc09ecdb388924829462bea9",
+        "lib/x86_64/libhev-socks5-tunnel.so": "5582a4736fce21b4390b1c657c7e7a4bc4eeaa630983b7d60882a680ce3bc517",
+        "lib/x86_64/libhevsockstun.so": "5ef70c72a35baa4da43e17898964122b35ba1888c5c76132528fc7e9a2d5de47",
+        "lib/x86_64/libimage_processing_util_jni.so": "112703727717651e69e91f3ea2c3c2311737ee5809a909c9d342a811b6c7c069",
+        "lib/x86_64/libmmkv.so": "4b639aa8fd190b7a6f28dc88be7668e23f26da2edc0d8976cc24dd342089a310",
+        "lib/x86_64/libsurface_util_jni.so": "e5311942b4fce0f7f2505d41150cf9921e558a6368929cb73127450f74dd4fe4",
+        "lib/x86_64/libwg-go.so": "05dd7e0df77dda53d070848d8f1b176578629ff0ed0eacbe36f451239637ad7d"
+      },
+      "filename": "FOROUZ_1.0.1-fdroid-release_x86_64.apk"
+    },
+    {
+      "flavor": "Fdroid",
+      "abi": "x86",
+      "size_bytes": 35997781,
+      "sha256": "d1dd5c877f9319a8e202f5cfb817421e69f43c1c4a27b9867d7f57da336b3685",
+      "package": "ir.alamornetwork.forouz.fdroid",
+      "version_code": 5076604,
+      "native_sha256": {
+        "lib/x86/libandroidx.graphics.path.so": "eb0570b41fd3bff25d8204a967c03bd7550719e768b791f680cc40cbe35f29af",
+        "lib/x86/libgojni.so": "c9742f97d415b2c536ce7d766cd8ccc97ed9812c7f63e2159c9e0f8be0249ac1",
+        "lib/x86/libhev-socks5-tunnel.so": "e5089a7eeab177ee734dc3e8e573c5494dd9e2db3bb765c2dc6d5ba38ba40c13",
+        "lib/x86/libhevsockstun.so": "3cacbcbbb5313e8b7f2ae6cb2e9a753e14c950f96c2421090e88c109ee208ce6",
+        "lib/x86/libimage_processing_util_jni.so": "b52f93b57d408b2306071f9de1a4b0b5684c1b86563e34a8711d80a1e6c03f94",
+        "lib/x86/libmmkv.so": "68f9e6d13a3fe1b2a52de058d367421773b3c01e058849dcb228a7ccba10395d",
+        "lib/x86/libsurface_util_jni.so": "3048a535d701579c87c4ad91283cd1246d2c85399a164ee4720642037ea31727",
+        "lib/x86/libwg-go.so": "14d137cb95139fae1461ff75215f6dbf2203830d03a6c2d09d0830be0e59ab86"
+      },
+      "filename": "FOROUZ_1.0.1-fdroid-release_x86.apk"
+    },
+    {
+      "flavor": "Fdroid",
+      "abi": "arm64-v8a",
+      "size_bytes": 34281525,
+      "sha256": "104347ee0084eefc4971952db60215d36f7a015683a1f58a815a290cea08ec9d",
+      "package": "ir.alamornetwork.forouz.fdroid",
+      "version_code": 5076601,
+      "native_sha256": {
+        "lib/arm64-v8a/libandroidx.graphics.path.so": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6",
+        "lib/arm64-v8a/libgojni.so": "bd76cd59745f5146ced9371e25e203edfc24a140302124b20b33669adb3a1efb",
+        "lib/arm64-v8a/libhev-socks5-tunnel.so": "fe49273bb219272a9217113ea353a128f91428ea7d3df5256190a52c1d1c0a2a",
+        "lib/arm64-v8a/libhevsockstun.so": "9a211d6814a2f9b2ccab8e3660d9bdaa7516d76c698f7904dbdad8a13a29d1e4",
+        "lib/arm64-v8a/libimage_processing_util_jni.so": "0292b063fafccf734472cbb59588e756c2dbca907c72021ba6fbf126385508a2",
+        "lib/arm64-v8a/libmmkv.so": "4943cc7195c24431d1569a0659b45fc49a687ac58089515a8b5c57f672ca1dba",
+        "lib/arm64-v8a/libsurface_util_jni.so": "a5c9d1928ea92ec7a94dff8cf666e7739cd734198b9f0ae1d4e28ea3c86516ba",
+        "lib/arm64-v8a/libwg-go.so": "8bd1d044fcf1828924981bb8b1d66571b884c16d2d779de603d5b359d6ed4416"
+      },
+      "filename": "FOROUZ_1.0.1-fdroid-release_arm64-v8a.apk"
+    }
+  ]
+}

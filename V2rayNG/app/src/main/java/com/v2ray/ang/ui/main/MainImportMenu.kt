@@ -4,6 +4,8 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.v2ray.ang.R
+import com.v2ray.ang.core.FragmentPreset
+import com.v2ray.ang.core.XrayFragmentVariants
 import com.v2ray.ang.dto.entities.ProfileItem
 import com.v2ray.ang.enums.EConfigType
 import com.v2ray.ang.extension.isComplexType
@@ -48,19 +50,41 @@ internal enum class ServerMenuAction(
     ShareClipboard(R.string.share_method_clipboard, isShareAction = true, supportsComplexProfiles = false),
     ShareFullContent(R.string.share_method_full_content, isShareAction = true, supportsComplexProfiles = true),
     Edit(R.string.action_edit, isShareAction = false, supportsComplexProfiles = true),
+    FragmentBaseline(R.string.lab_fragment_baseline, isShareAction = false, supportsComplexProfiles = false),
+    FragmentLight(R.string.lab_fragment_light, isShareAction = false, supportsComplexProfiles = false),
+    FragmentSmall(R.string.lab_fragment_small, isShareAction = false, supportsComplexProfiles = false),
     Delete(R.string.action_delete, isShareAction = false, supportsComplexProfiles = true),
 }
 
 internal fun serverMenuActions(
     isComplexProfile: Boolean,
     includeManagementActions: Boolean,
+    supportsFragmentation: Boolean = false,
 ): List<ServerMenuAction> = ServerMenuAction.entries.filter { action ->
-    (includeManagementActions || action.isShareAction) && (!isComplexProfile || action.supportsComplexProfiles)
+    (includeManagementActions || action.isShareAction) && (!isComplexProfile || action.supportsComplexProfiles) &&
+        (fragmentPreset(action) == null || supportsFragmentation)
 }
 
+internal fun fragmentPreset(action: ServerMenuAction): FragmentPreset? = when (action) {
+    ServerMenuAction.FragmentBaseline -> FragmentPreset.BASELINE
+    ServerMenuAction.FragmentLight -> FragmentPreset.LIGHT
+    ServerMenuAction.FragmentSmall -> FragmentPreset.SMALL
+    else -> null
+}
+
+@StringRes
+internal fun fragmentPresetLabel(preset: FragmentPreset): Int = when (preset) {
+    FragmentPreset.BASELINE -> R.string.lab_fragment_baseline
+    FragmentPreset.LIGHT -> R.string.lab_fragment_light
+    FragmentPreset.SMALL -> R.string.lab_fragment_small
+}
+
+internal fun clipboardAction(guid: String, type: EConfigType): MainAction =
+    if (type == EConfigType.AMNEZIAWG) MainAction.CopyAmneziaNative(guid) else MainAction.ShareClipboard(guid)
+
 @Composable
-fun ImportMenuContent(onAction: (MainAction) -> Unit) = AppDropdownMenuItems(
-    items = ImportMenuAction.entries,
+fun ImportMenuContent(includeSources: Boolean = true, onAction: (MainAction) -> Unit) = AppDropdownMenuItems(
+    items = ImportMenuAction.entries.filter { includeSources || it.action is MainAction.ImportManually },
     labelRes = { it.labelRes },
     onSelected = { onAction(it.action) }
 )
@@ -84,17 +108,21 @@ fun ShareMethodDialog(
     val menuActions = serverMenuActions(
         isComplexProfile = profile.configType.isComplexType(),
         includeManagementActions = more,
+        supportsFragmentation = XrayFragmentVariants.canOffer(profile),
     )
     SelectListDialog(
         options = menuActions,
-        optionText = { stringResource(it.labelRes) },
+        optionText = { stringResource(if (it == ServerMenuAction.ShareClipboard && profile.configType == EConfigType.AMNEZIAWG)
+            R.string.awg_copy_native else it.labelRes) },
         onSelected = { action ->
             onDismiss()
             when (action) {
                 ServerMenuAction.ShareQRCode -> onAction(MainAction.ShareQRCode(guid))
-                ServerMenuAction.ShareClipboard -> onAction(MainAction.ShareClipboard(guid))
+                ServerMenuAction.ShareClipboard -> onAction(clipboardAction(guid, profile.configType))
                 ServerMenuAction.ShareFullContent -> onAction(MainAction.ShareFullContent(guid))
                 ServerMenuAction.Edit -> onAction(MainAction.EditServer(guid, profile))
+                ServerMenuAction.FragmentBaseline, ServerMenuAction.FragmentLight, ServerMenuAction.FragmentSmall ->
+                    onAction(MainAction.CreateFragmentVariant(guid, checkNotNull(fragmentPreset(action))))
                 ServerMenuAction.Delete -> onRemove(guid, profile.remarks)
             }
         },

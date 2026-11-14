@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="awg_test_unsupported">يتطلب اختبار اتصال Amnezia نظام Android 11 أو أحدث لتحديد شبكة VPN المملوكة بأمان.</string>
+    <string name="awg_test_no_vpn">شبكة VPN الخاصة بهذا التطبيق غير جاهزة. أعد الاتصال وحاول مجددًا.</string>
+    <string name="awg_test_invalid_url">يجب أن يستخدم عنوان الاختبار HTTPS دون اسم مستخدم أو كلمة مرور.</string>
+    <string name="awg_test_timeout">انتهت مهلة اختبار اتصال Amnezia.</string>
+    <string name="awg_test_http_response">لم يُرجع خادم الاختبار استجابة HTTP ناجحة.</string>
+    <string name="awg_test_network_error">فشل HTTPS عبر نفق Amnezia. تحقق من الإعدادات وDNS والمسارات.</string>
+</resources>

@@ -1,0 +1,17 @@
+<resources>
+    <string name="lab_home">Kết nối</string>
+    <string name="lab_vpn_on">VPN đang bật</string>
+    <string name="lab_vpn_off">VPN đang tắt</string>
+    <string name="lab_connected_title">Đã kết nối</string>
+    <string name="lab_ready_title">Sẵn sàng kết nối</string>
+    <string name="lab_empty_hint">Thêm cấu hình để bắt đầu kết nối.</string>
+    <string name="lab_connection_hint">Kết nối bằng cấu hình đã chọn.</string>
+    <string name="lab_selected_profile">Cấu hình đã chọn</string>
+    <string name="lab_choose_profile">Chọn cấu hình</string>
+    <string name="lab_protocol">Giao thức</string>
+    <string name="lab_last_delay">Độ trễ kiểm tra gần nhất</string>
+    <string name="lab_delay_ms">%1$d ms</string>
+    <string name="lab_not_measured">Chưa đo</string>
+    <string name="lab_test_connection">Kiểm tra kết nối</string>
+    <string name="awg_copy_native">Sao chép cấu hình AmneziaWG gốc</string>
+</resources>

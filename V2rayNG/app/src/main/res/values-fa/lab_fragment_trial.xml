@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_fragment_baseline">آزمایشی: بدون تقسیم</string>
+    <string name="lab_fragment_light">آزمایشی: تقسیم سبک</string>
+    <string name="lab_fragment_small">آزمایشی: تقسیم ریزتر</string>
+    <string name="lab_fragment_variant_name">%1$s · %2$s</string>
+    <string name="lab_fragment_unavailable">این پروفایل، نوع انتقال یا ماسک سفارشی آن برای نسخهٔ آزمایشی سازگار نیست.</string>
+    <string name="lab_fragment_saved">نسخهٔ آزمایشی در گروه محلی ساخته شد؛ آن را انتخاب کن و با قطع و وصل تست بگیر.</string>
+</resources>

@@ -1,0 +1,4 @@
+<resources>
+    <string name="froz_section_expanded">بازشده</string>
+    <string name="froz_section_collapsed">بسته</string>
+</resources>

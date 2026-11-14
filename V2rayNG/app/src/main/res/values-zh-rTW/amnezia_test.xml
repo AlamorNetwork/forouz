@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="awg_test_unsupported">Amnezia 連線測試需要 Android 11 或更新版本，以安全識別本應用程式的 VPN。</string>
+    <string name="awg_test_no_vpn">本應用程式的 VPN 網路尚未就緒。請重新連線並重試。</string>
+    <string name="awg_test_invalid_url">測試網址必須使用 HTTPS，且不包含使用者名稱或密碼。</string>
+    <string name="awg_test_timeout">Amnezia 連線測試逾時。</string>
+    <string name="awg_test_http_response">測試伺服器未傳回成功的 HTTP 回應。</string>
+    <string name="awg_test_network_error">透過 Amnezia 通道的 HTTPS 失敗。請檢查設定、DNS 與路由。</string>
+</resources>

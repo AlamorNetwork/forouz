@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_fragment_baseline">تجربة: دون تجزئة</string>
+    <string name="lab_fragment_light">تجربة: تجزئة خفيفة</string>
+    <string name="lab_fragment_small">تجربة: أجزاء أصغر</string>
+    <string name="lab_fragment_variant_name">%1$s · %2$s</string>
+    <string name="lab_fragment_unavailable">التجربة غير متاحة لهذا الملف أو نوع النقل أو القناع المخصص.</string>
+    <string name="lab_fragment_saved">تم إنشاء نسخة محلية. اخترها ثم أعد الاتصال للاختبار.</string>
+</resources>

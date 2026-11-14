@@ -1,0 +1,17 @@
+<resources>
+    <string name="lab_home">اتصال</string>
+    <string name="lab_vpn_on">VPN روشن است</string>
+    <string name="lab_vpn_off">VPN خاموش است</string>
+    <string name="lab_connected_title">متصل هستید</string>
+    <string name="lab_ready_title">آمادهٔ اتصال</string>
+    <string name="lab_empty_hint">برای شروع، یک کانفیگ وارد کنید.</string>
+    <string name="lab_connection_hint">با کانفیگ انتخابی خود متصل شوید.</string>
+    <string name="lab_selected_profile">کانفیگ انتخابی</string>
+    <string name="lab_choose_profile">انتخاب کانفیگ</string>
+    <string name="lab_protocol">پروتکل</string>
+    <string name="lab_last_delay">آخرین تست تأخیر</string>
+    <string name="lab_delay_ms">%1$d میلی‌ثانیه</string>
+    <string name="lab_not_measured">اندازه‌گیری نشده</string>
+    <string name="lab_test_connection">تست اتصال</string>
+    <string name="awg_copy_native">کپی کانفیگ بومی AmneziaWG</string>
+</resources>

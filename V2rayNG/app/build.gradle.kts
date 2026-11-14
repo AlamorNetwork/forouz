@@ -10,11 +10,11 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.v2ray.ang"
+        applicationId = "ir.alamornetwork.forouz"
         minSdk = 24
         targetSdk = 37
-        versionCode = 755
-        versionName = "2.3.15"
+        versionCode = 766
+        versionName = "1.0.1"
 
         val abiFilterList = (properties["ABI_FILTERS"] as? String)?.split(';')
         splits {
@@ -38,8 +38,21 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("forouzRelease") {
+            providers.environmentVariable("FOROUZ_KEYSTORE_PATH").orNull?.let { storeFile = file(it) }
+            storePassword = providers.environmentVariable("FOROUZ_KEYSTORE_PASSWORD").orNull
+            keyAlias = "forouz-release"
+            keyPassword = providers.environmentVariable("FOROUZ_KEYSTORE_PASSWORD").orNull
+        }
+    }
+
     buildTypes {
+        debug {
+            applicationIdSuffix = ".debug"
+        }
         release {
+            signingConfig = signingConfigs.getByName("forouzRelease")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -92,7 +105,7 @@ android {
                 .map { it as com.android.build.gradle.internal.api.ApkVariantOutputImpl }
                 .forEach { output ->
                     val abi = output.getFilter("ABI") ?: "universal"
-                    output.outputFileName = "v2rayNG_${variant.versionName}-fdroid_${abi}.apk"
+                    output.outputFileName = "FOROUZ_${variant.versionName}-fdroid-${variant.buildType.name}_${abi}.apk"
                     if (versionCodes.containsKey(abi)) {
                         output.versionCodeOverride =
                             (100 * variant.versionCode + versionCodes[abi]!!).plus(5000000)
@@ -112,7 +125,7 @@ android {
                     else
                         "universal"
 
-                    output.outputFileName = "v2rayNG_${variant.versionName}_${abi}.apk"
+                    output.outputFileName = "FOROUZ_${variant.versionName}-playstore-${variant.buildType.name}_${abi}.apk"
                     if (versionCodes.containsKey(abi)) {
                         output.versionCodeOverride =
                             (1000000 * versionCodes[abi]!!).plus(variant.versionCode)
@@ -164,6 +177,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":amnezia"))
     // Core Libraries
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar", "*.jar"))))
 

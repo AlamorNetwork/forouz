@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="awg_test_unsupported">নিজস্ব VPN নিরাপদে শনাক্ত করতে Amnezia সংযোগ পরীক্ষায় Android 11 বা নতুন সংস্করণ প্রয়োজন।</string>
+    <string name="awg_test_no_vpn">এই অ্যাপের VPN নেটওয়ার্ক প্রস্তুত নয়। আবার সংযোগ করে চেষ্টা করুন।</string>
+    <string name="awg_test_invalid_url">পরীক্ষার URL-এ HTTPS থাকতে হবে এবং ব্যবহারকারীর নাম বা পাসওয়ার্ড থাকা যাবে না।</string>
+    <string name="awg_test_timeout">Amnezia সংযোগ পরীক্ষার সময়সীমা শেষ।</string>
+    <string name="awg_test_http_response">পরীক্ষার সার্ভার সফল HTTP উত্তর দেয়নি।</string>
+    <string name="awg_test_network_error">Amnezia টানেলের মাধ্যমে HTTPS ব্যর্থ। কনফিগারেশন, DNS ও রুট পরীক্ষা করুন।</string>
+</resources>

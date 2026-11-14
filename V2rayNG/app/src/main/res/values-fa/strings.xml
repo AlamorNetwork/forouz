@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">v2rayNG</string>
+    <string name="app_name" translatable="false">فروز</string>
     <string name="app_widget_name">تعویض</string>
     <string name="app_tile_name">تعویض</string>
     <string name="app_tile_first_use">برای اولین استفاده از این قابلیت، لطفاً ابتدا از داخل برنامه یک سرور اضافه کنید</string>
@@ -14,7 +14,7 @@
     <string name="pull_down_to_refresh">برای بروزرسانی، صفحه را به پایین بکشید!</string>
 
     <!-- Notifications -->
-    <string name="notification_channel_service">سرویس v2rayNG</string>
+    <string name="notification_channel_service">سرویس فروز</string>
     <string name="notification_channel_subscription_updates">به‌روزرسانی اشتراک‌ها</string>
     <string name="notification_channel_connection_checks">بررسی اتصال</string>
     <string name="notification_action_stop_v2ray">توقف</string>
@@ -565,4 +565,45 @@
     <string name="sub_info_open_page">باز کردن صفحه اطلاعات اشتراک</string>
     <string name="sub_info_unlimited">نامحدود</string>
 
+
+    <!-- Lab14: opt-in active-connection monitoring. -->
+    <string name="health_title">پایش پایداری اتصال</string>
+    <string name="health_intro">فقط اتصال فعال رصد می‌شود. خطای HTTPS به‌تنهایی به معنی قطع VPN یا فیلترینگ نیست.</string>
+    <string name="health_setup">تنظیمات پایش</string>
+    <string name="health_interval">فاصلهٔ بررسی</string>
+    <string name="health_seconds">هر %1$d ثانیه</string>
+    <string name="health_auto">بازیابی خودکار · فقط Xray در حالت VPN</string>
+    <string name="health_scope">Xray: مسیر خروجی SOCKS محلی با قوانین مسیریابی؛ نیازمند پروکسی محلی روشن و بدون رمز. Amnezia: تونل خود برنامه در اندروید ۱۱ به بالا. بازیابی برای Amnezia، روت و حالت فقط پروکسی فعال نیست.</string>
+    <string name="health_confirm">هر %1$d ثانیه تا دو ساعت: حداکثر ۲۴۰ دور و ۴۸۰ درخواست سبک HTTPS؛ بدون دانلود ۱۰ مگابایتی. درخواست‌های کنترلی هم مصرف اینترنت دارند. بازیابی خودکار خاموش است. توقف پایش، VPN را قطع نمی‌کند.</string>
+    <string name="health_confirm_recovery">هر %1$d ثانیه تا دو ساعت: حداکثر ۲۴۰ دور و ۴۸۰ درخواست سبک HTTPS؛ بدون دانلود ۱۰ مگابایتی. پس از سه دور خطای پیاپی روی شبکهٔ تأییدشده، هستهٔ همان VPN بازنشانی می‌شود. حداکثر سه تلاش با فاصلهٔ ۶۰، ۱۸۰ و ۶۰۰ ثانیه؛ انتقال جاری ممکن است قطع شود. توقف دستی اولویت دارد و VPN خاموش روشن نمی‌شود.</string>
+    <string name="health_start">شروع پایش</string>
+    <string name="health_stop">توقف پایش؛ VPN روشن می‌ماند</string>
+    <string name="health_running">در حال پایش اتصال فعال</string>
+    <string name="health_stale">گزارش تازه دریافت نشده؛ وضعیت سرویس نامشخص است. برای بستن این اجرا، پایش را متوقف کن.</string>
+    <string name="health_history">پنج اجرای اخیر پایش</string>
+    <string name="health_empty">هنوز گزارشی از پایش ثبت نشده است.</string>
+    <string name="health_running_record">در گزارش «در حال اجرا» ثبت شده؛ تأیید زنده‌بودن سرویس نیست.</string>
+    <string name="health_ended">پایان بازه یا سقف پایش</string>
+    <string name="health_cancelled">پایش متوقف شد</string>
+    <string name="health_interrupted">اجرای قبلی ناتمام مانده است</string>
+    <string name="health_error">فرمان یا گزارش پایش در دسترس نیست؛ بازیابی تأیید نشده است.</string>
+    <string name="health_counts">بررسی‌ها: %1$d · ناموفق: %2$d\nدرخواست HTTPS: %3$d · تلاش بازیابی: %4$d</string>
+    <string name="health_event_note">حداکثر ۱۲۰ رویداد اخیر. تأخیر شامل DNS و TCP و TLS است. خواب گوشی، زمان اتصال اندازه‌گیری‌شده محسوب نمی‌شود؛ سرعت دانلود هم از آن نتیجه‌گیری نمی‌شود.</string>
+    <string name="health_latency">پاسخ HTTPS: %1$d میلی‌ثانیه</string>
+    <string name="health_wifi">وای‌فای</string>
+    <string name="health_cellular">دیتای موبایل</string>
+    <string name="health_ethernet">اترنت</string>
+    <string name="health_other">شبکهٔ دیگر یا نامشخص</string>
+    <string name="health_wait_vpn">منتظر VPN فعال؛ روشن‌شدن درخواست نشده</string>
+    <string name="health_wait_network">منتظر اینترنت فیزیکی یا خروج از صفحهٔ ورود شبکه</string>
+    <string name="health_grace">مهلت پس از تغییر جلسه یا شبکه</string>
+    <string name="health_ok">بررسی HTTPS موفق بود</string>
+    <string name="health_failed_check">بررسی HTTPS ناموفق بود؛ ممکن است VPN همچنان روشن باشد</string>
+    <string name="health_unsupported">پایش این حالت با تنظیمات فعلی پشتیبانی نمی‌شود</string>
+    <string name="health_changed">اتصال تغییر کرد؛ نتیجهٔ قدیمی کنار گذاشته شد</string>
+    <string name="health_recovery">تلاش برای بازیابی ثبت شد</string>
+    <string name="health_recovered">هسته بازنشانی شد؛ منتظر بررسی بعدی HTTPS</string>
+    <string name="health_skipped">بازیابی انجام نشد: توقف، مشغول‌بودن یا تغییر اتصال</string>
+    <string name="health_recovery_failed">بازنشانی هسته ناموفق بود؛ روشن‌کردن مجدد سرویس درخواست نشد</string>
+    <string name="health_finished">پایش پایان یافت</string>
 </resources>

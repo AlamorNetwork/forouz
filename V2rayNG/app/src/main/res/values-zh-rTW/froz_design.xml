@@ -1,0 +1,5 @@
+<resources>
+    <string name="froz_traffic_title">Live traffic</string>
+    <string name="froz_lab_setup">Test setup</string>
+    <string name="froz_lab_results">Results</string>
+</resources>

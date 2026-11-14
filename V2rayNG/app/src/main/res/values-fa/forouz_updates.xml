@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="forouz_update_no_release">هنوز نسخه‌ای از فروز منتشر نشده است.</string>
+    <string name="forouz_update_no_apk">نسخهٔ جدید موجود است؛ اما APK سازگار با این دستگاه و نوع نصب منتشر نشده است.</string>
+    <string name="forouz_update_invalid">اطلاعات انتشار معتبر نیست؛ فایلی برای دانلود انتخاب نشد.</string>
+    <string name="forouz_update_network">دسترسی به نسخه‌های فروز ممکن نشد؛ اتصال را بررسی کن و دوباره تلاش کن.</string>
+    <string name="forouz_update_source">منبع به‌روزرسانی: %1$s</string>
+    <string name="forouz_update_releases">نسخه‌ها و دانلود فروز</string>
+    <string name="forouz_update_preferences">خواندن یا ذخیرهٔ تنظیمات به‌روزرسانی ممکن نشد.</string>
+    <string name="forouz_update_available">نسخهٔ جدید فروز موجود است.</string>
+</resources>

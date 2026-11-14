@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_test_active_connection">Проверить активное соединение</string>
+    <string name="lab_test_not_active">Запрошенный туннель не запущен. Подключитесь и повторите тест.</string>
+    <string name="lab_test_reply_timeout">Служба тестирования не ответила вовремя. Повторите попытку.</string>
+    <string name="awg_test_dns_error">Не удалось разрешить DNS через VPN. Проверьте DNS туннеля.</string>
+    <string name="awg_test_tls_error">Сбой проверки или рукопожатия TLS с сервером теста.</string>
+    <string name="awg_test_socket_error">Тестовому сокету не удалось подключиться через VPN.</string>
+</resources>

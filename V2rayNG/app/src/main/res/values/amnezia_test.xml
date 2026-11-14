@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="awg_test_unsupported">Amnezia connection testing requires Android 11 or later to identify the owned VPN safely.</string>
+    <string name="awg_test_no_vpn">The VPN network owned by this app is not ready. Reconnect and try again.</string>
+    <string name="awg_test_invalid_url">The test URL must use HTTPS without a username or password.</string>
+    <string name="awg_test_timeout">The Amnezia connection test timed out.</string>
+    <string name="awg_test_http_response">The test server did not return a successful HTTP response.</string>
+    <string name="awg_test_network_error">HTTPS through the Amnezia tunnel failed. Check the configuration, DNS and routes.</string>
+</resources>

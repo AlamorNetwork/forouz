@@ -1,0 +1,12 @@
+<resources>
+    <string name="lab_history_missing">This report is no longer in the saved history.</string>
+    <string name="lab_history_browse">History and previous reports</string>
+    <string name="lab_history_report">Test report</string>
+    <string name="lab_history_scope">The latest %1$d rounds from all groups. Open a round to see each configuration’s stored result.</string>
+    <string name="lab_history_note">These are the saved results of this round. Opening a report does not start another test. Configuration names use currently available profile information.</string>
+    <string name="lab_history_empty">No saved rounds yet. Run a test from the Laboratory to create a report.</string>
+    <string name="lab_history_open">View this report</string>
+    <string name="lab_history_profile">Previous configuration %1$d</string>
+    <string name="lab_history_old_group">Previous group</string>
+    <string name="lab_history_group">Group: %1$s</string>
+</resources>

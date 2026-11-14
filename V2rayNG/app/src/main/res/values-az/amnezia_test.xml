@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="awg_test_unsupported">Öz VPN şəbəkəsini təhlükəsiz müəyyənləşdirmək üçün Amnezia testi Android 11 və ya daha yeni versiya tələb edir.</string>
+    <string name="awg_test_no_vpn">Bu tətbiqin VPN şəbəkəsi hazır deyil. Yenidən qoşulub yoxlayın.</string>
+    <string name="awg_test_invalid_url">Test ünvanı istifadəçi adı və şifrə olmadan HTTPS işlətməlidir.</string>
+    <string name="awg_test_timeout">Amnezia bağlantı testinin vaxtı bitdi.</string>
+    <string name="awg_test_http_response">Test serveri uğurlu HTTP cavabı qaytarmadı.</string>
+    <string name="awg_test_network_error">Amnezia tuneli üzərindən HTTPS alınmadı. Konfiqurasiyanı, DNS və marşrutları yoxlayın.</string>
+</resources>

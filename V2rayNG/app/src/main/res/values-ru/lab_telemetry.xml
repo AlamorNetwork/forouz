@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_duration">%1$02d:%2$02d:%3$02d</string>
+    <string name="lab_notification_rates">↓ %1$s  •  ↑ %2$s</string>
+    <string name="lab_notification_permission">Нужно разрешение VPN. Откройте приложение для подключения.</string>
+    <string name="lab_notification_disconnected">Отключено. Нажмите «Подключить» для повторного подключения.</string>
+    <string name="lab_open_app">Открыть приложение</string>
+    <string name="lab_traffic_waiting">Ожидание данных трафика…</string>
+    <string name="lab_traffic_unavailable">Статистика трафика для этого подключения недоступна.</string>
+    <string name="lab_download">Загрузка</string>
+    <string name="lab_upload">Отправка</string>
+    <string name="lab_total_bytes">Всего %1$s</string>
+    <string name="lab_chart_description">Трафик Xray за 90 секунд. Загрузка %1$s, отправка %2$s.</string>
+    <string name="lab_traffic_window">90 секунд • Шкала %1$s</string>
+    <string name="lab_traffic_scope">Прямой и проксируемый трафик Xray. Сплошная: загрузка, пунктир: отправка. Байты в секунду, не тест скорости.</string>
+    <string name="lab_uptime">Подключено %1$s</string>
+</resources>

@@ -20,10 +20,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.v2ray.ang.BuildConfig
 import com.v2ray.ang.R
-import com.v2ray.ang.core.CoreNativeManager
+import com.v2ray.ang.handler.ForouzReleasePolicy
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.LiveRegionMode
 import com.v2ray.ang.ui.base.BaseComponentActivity
 import com.v2ray.ang.ui.compose.AppTopBar
 import com.v2ray.ang.ui.compose.NavigationBarsSpacer
@@ -62,7 +67,9 @@ fun CheckUpdateScreen(
     val showUpdateDialog by viewModel.showUpdateDialog.collectAsStateWithLifecycle()
     val updateResult by viewModel.updateResult.collectAsStateWithLifecycle()
 
-    val libVersion = CoreNativeManager.getLibVersion()
+    val ready by viewModel.ready.collectAsStateWithLifecycle()
+    val message by viewModel.message.collectAsStateWithLifecycle()
+    val libVersion by viewModel.coreVersion.collectAsStateWithLifecycle()
     val versionText = "v${BuildConfig.VERSION_NAME} ($libVersion)"
 
     Scaffold(
@@ -79,19 +86,27 @@ fun CheckUpdateScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
                 .verticalScroll(rememberScrollState())
         ) {
             SettingsSwitchItem(
                 icon = painterResource(R.drawable.ic_source_code_24dp),
                 title = stringResource(R.string.update_check_pre_release),
                 checked = checkPreRelease,
-                onCheckedChange = { viewModel.toggleCheckPreRelease(it) }
+                onCheckedChange = { viewModel.toggleCheckPreRelease(it) }, enabled = ready && !isLoading
             )
             SettingsMenuItem(
                 icon = painterResource(R.drawable.ic_check_update_24dp),
                 title = stringResource(R.string.update_check_for_update),
                 onClick = { viewModel.checkForUpdates() }
             )
+            Text(stringResource(R.string.forouz_update_source, ForouzReleasePolicy.REPOSITORY),
+                modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.bodyMedium)
+            message?.let { res -> Text(stringResource(res), modifier = Modifier.padding(16.dp)
+                .semantics { liveRegion = LiveRegionMode.Polite }, style = MaterialTheme.typography.bodyMedium) }
+            SettingsMenuItem(icon = painterResource(R.drawable.ic_source_code_24dp),
+                title = stringResource(R.string.forouz_update_releases),
+                onClick = { Utils.openUri(context, ForouzReleasePolicy.RELEASES_PAGE) })
             VersionInfoBlock(versionText = versionText)
             NavigationBarsSpacer()
         }

@@ -1,0 +1,10 @@
+<resources>
+    <string name="awg_connection_failed">AmneziaWG connection failed. Check the configuration and VPN permission.</string>
+    <string name="awg_vpn_only">AmneziaWG currently supports VPN mode only.</string>
+    <string name="awg_edit_import">To edit this AmneziaWG profile, update and import its configuration file.</string>
+    <string name="awg_captcha_title">Amnezia verification</string>
+    <string name="awg_captcha_image">Verification image</string>
+    <string name="awg_captcha_answer">Enter the code in the image</string>
+    <string name="awg_no_compatible_server">Amnezia has no compatible AWG server available for this account. Try again later or contact the provider.</string>
+    <string name="awg_configuration_limit">The configuration limit for this Amnezia account has been reached. Contact the provider.</string>
+</resources>

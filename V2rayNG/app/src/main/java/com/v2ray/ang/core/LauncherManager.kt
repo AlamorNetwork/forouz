@@ -56,6 +56,11 @@ object LauncherManager {
         MessageHelper.sendMsg2Service(context, AppConfig.MSG_STATE_STOP, "")
     }
 
+    /** Daemon-only in-place recovery. Never dispatches an Android service start. */
+    internal suspend fun recoverHealth(session: String, guid: String, revision: String, stopToken: Long,
+        stillCurrent: () -> Boolean): com.v2ray.ang.core.health.HealthRecoveryResult =
+        CoreServiceManager.recoverHealth(session, guid, revision, stopToken, stillCurrent)
+
     /** Restarts the active daemon without starting a stopped service. */
     fun restartService(context: Context) {
         MessageHelper.sendMsg2Service(context, AppConfig.MSG_STATE_RESTART, "")
@@ -91,6 +96,15 @@ object LauncherManager {
         ) {
             LogUtil.e(AppConfig.TAG, "LauncherManager: Invalid server configuration")
             error(context.getString(R.string.toast_config_file_invalid))
+        }
+
+        if (config.configType == com.v2ray.ang.enums.EConfigType.AMNEZIAWG) {
+            check(SettingsManager.isVpnMode() && !SettingsManager.isRootMode()) {
+                context.getString(R.string.awg_vpn_only)
+            }
+            ContextCompat.startForegroundService(context,
+                Intent(context.applicationContext, com.v2ray.ang.service.AmneziaWgService::class.java))
+            return
         }
 
         SettingsManager.refreshRuntimeSocksPort()

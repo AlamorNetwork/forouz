@@ -1,11 +1,15 @@
 package com.v2ray.ang.ui.main
 
 import android.app.Application
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.R
+import com.v2ray.ang.core.amnezia.AmneziaGatewayFailure
 import com.v2ray.ang.dto.ConnectionTestResult
 import com.v2ray.ang.dto.GroupMapItem
 import com.v2ray.ang.dto.LocateTarget
@@ -19,6 +23,7 @@ import com.v2ray.ang.extension.isComplexType
 import com.v2ray.ang.extension.matchesPattern
 import com.v2ray.ang.extension.moveItem
 import com.v2ray.ang.handler.SubscriptionInfoParser
+import com.v2ray.ang.handler.resetDelayBeforeBatch
 import com.v2ray.ang.ui.base.BaseViewModel
 import com.v2ray.ang.util.LogUtil
 import kotlinx.coroutines.CancellationException
@@ -33,6 +38,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -42,6 +48,12 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 import java.util.regex.PatternSyntaxException
+
+internal fun amneziaImportErrorResource(error: Throwable): Int = when ((error as? AmneziaGatewayFailure)?.reason) {
+    AmneziaGatewayFailure.Reason.NO_COMPATIBLE_SERVERS -> R.string.awg_no_compatible_server
+    AmneziaGatewayFailure.Reason.CONFIGURATION_LIMIT -> R.string.awg_configuration_limit
+    else -> R.string.toast_failure
+}
 
 private fun applyTestDelayResults(
     servers: List<ServersCache>,
@@ -69,7 +81,8 @@ private fun applyTestDelayResultsToRows(
 
 class MainViewModel(
     application: Application,
-    private val dataSource: MainDataSource
+    private val dataSource: MainDataSource,
+    private val savedState: SavedStateHandle = SavedStateHandle()
 ) : BaseViewModel(application) {
 
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -79,6 +92,7 @@ class MainViewModel(
     // ---------- UI state ----------
     private val _uiState = MutableStateFlow(
         MainUiState(
+            searchQuery = (savedState.get<Any?>("profile_query") as? String).orEmpty(),
             selectedGroupId = dataSource.getSelectedSubscriptionId(),
             selectedGuid = dataSource.getSelectServer(),
             confirmRemove = dataSource.getConfirmRemove(),
@@ -89,7 +103,7 @@ class MainViewModel(
 
     // ---------- Keyword filtering ----------
     @Volatile
-    private var keywordFilter: String = ""
+    private var keywordFilter: String = _uiState.value.searchQuery
     private var filterJob: Job? = null
 
     // ---------- Groups & cache ----------
@@ -104,18 +118,68 @@ class MainViewModel(
     private var preloadJob: Job? = null
     private var selectedGroupLoadJob: Job? = null
     private var reloadJob: Job? = null
+    private var homeProfileJob: Job? = null
     private var testResultFlushJob: Job? = null
     private val pendingTestResults = linkedMapOf<String, Long>()
 
     private val testRequests = MainTestRequests()
     private var bulkTestJob: Job? = null
+    private var currentProbeJob: Job? = null
+    private var privacyJob: Job? = null
+    private var privacyVisible = false
+    private var importInspectionJob: Job? = null
+    private var importInspectionId: String? = null
+    private var pendingImport: Triple<String, String, String>? = null
+    private var selectionJob: Job? = null
+    private val selectionMutex = Mutex()
 
     private val initialPageReady = CompletableDeferred<Unit>()
 
     // ---------- Service events ----------
     init {
+        viewModelScope.launch {
+            uiState.map { it.privacyTarget() }.distinctUntilChanged().collect { target ->
+                if (_uiState.value.privacy.requestId != null && _uiState.value.privacy.requestTarget != target) {
+                    privacyJob?.cancel()
+                }
+                _uiState.update { it.copy(privacy = it.privacy.observeTarget(target)) }
+            }
+        }
         collectServiceEvents()
+        collectConnectionSnapshots()
         setupGroupTab()
+        viewModelScope.launch {
+            uiState.map { it.selectedGuid to it.activeTestProfileGuid() }.distinctUntilChanged().collect { refreshHomeProfile() }
+        }
+    }
+
+    private fun collectConnectionSnapshots() {
+        viewModelScope.launch {
+            dataSource.connectionSnapshots.collect { next ->
+                if (next == null) return@collect
+                _uiState.update { state ->
+                    val connection = state.connection.accept(next)
+                    if (connection === state.connection) state else state.copy(
+                        connectionIssue = if (connection.snapshot?.running == true && connection.snapshot.sessionId != state.connection.snapshot?.sessionId &&
+                            state.connectionIssue in listOf(MainConnectionIssue.PERMISSION, MainConnectionIssue.START_FAILED)) null else state.connectionIssue,
+                        pendingCommand = state.pendingCommand?.takeUnless { it.confirmed(connection.snapshot) },
+                        connectivity = state.connectivity?.takeIf { it.belongsTo(connection.snapshot) },
+                        connection = connection,
+                        connectedSeconds = connection.elapsedSeconds(android.os.SystemClock.elapsedRealtime()),
+                    )
+                }
+                updateRunningState(_uiState.value.connection.runningOr(false), clearTestingText = false)
+            }
+        }
+        viewModelScope.launch {
+            while (true) {
+                delay(1_000L)
+                val now = android.os.SystemClock.elapsedRealtime()
+                val expired = _uiState.value.pendingCommand?.expired(now) == true
+                _uiState.update { state -> state.observeOverviewTime(now).copy(connectedSeconds = state.connection.elapsedSeconds(now)) }
+                if (expired) dataSource.refreshServiceState()
+            }
+        }
     }
 
     private fun collectServiceEvents() {
@@ -129,7 +193,10 @@ class MainViewModel(
     private fun handleServiceEvent(event: MainServiceEvent) {
         when (event) {
             MainServiceEvent.StateRunning -> updateRunningState(true, clearTestingText = false)
-            MainServiceEvent.StateNotRunning -> updateRunningState(false, clearTestingText = false)
+            MainServiceEvent.StateNotRunning -> {
+                _uiState.update { it.observeNoService(android.os.SystemClock.elapsedRealtime()) }
+                updateRunningState(false, clearTestingText = false)
+            }
             MainServiceEvent.StateStartSuccess -> {
                 toastSuccess(R.string.toast_services_success)
                 updateRunningState(true)
@@ -141,13 +208,25 @@ class MainViewModel(
                 } else {
                     toastError(R.string.toast_services_failure)
                 }
+                _uiState.update { it.copy(pendingCommand = null, connectionIssue = MainConnectionIssue.START_FAILED) }
                 updateRunningState(false)
             }
 
-            MainServiceEvent.StateStopSuccess -> updateRunningState(false)
+            MainServiceEvent.StateStopSuccess -> {
+                _uiState.update { it.copy(pendingCommand = null, deferredStopUntil = 0) }
+                updateRunningState(false)
+            }
             is MainServiceEvent.MeasureDelayResult -> {
-                if (!uiState.value.isRunning || !testRequests.completeCurrent(event.requestId)) return
-                _uiState.update { it.copy(isTesting = testRequests.isTesting, status = MainStatus.ConnectionTest(event.result)) }
+                val targetMatches = testRequests.matchesCurrentTarget(event.requestId,
+                    uiState.value.activeTestProfileGuid(), uiState.value.connection.snapshot?.sessionId)
+                if (!testRequests.completeCurrent(event.requestId)) return
+                if (!targetMatches) {
+                    resetTestStatus()
+                    return
+                }
+                _uiState.update { it.withConnectivityCheck(event.result, System.currentTimeMillis(), android.os.SystemClock.elapsedRealtime())
+                    .copy(isTesting = testRequests.isTesting, isCurrentTesting = testRequests.isCurrentTesting,
+                        status = MainStatus.ConnectionTest(event.result)) }
             }
 
             is MainServiceEvent.MeasureConfigSuccess -> {
@@ -275,6 +354,46 @@ class MainViewModel(
     // ---------- Action handler ----------
     fun onAction(action: MainAction) {
         when (action) {
+            MainAction.RunPrivacyCheck -> runPrivacyCheck(baseline = false)
+            MainAction.RequestPrivacyBaseline -> if (uiState.value.privacyTarget()?.vpn == false) {
+                _uiState.update { it.copy(privacy = it.privacy.copy(showBaselineConfirmation = true)) }
+            }
+            MainAction.ConfirmPrivacyBaseline -> {
+                val confirmed = _uiState.value.privacy.showBaselineConfirmation
+                _uiState.update { it.copy(privacy = it.privacy.copy(showBaselineConfirmation = false)) }
+                if (confirmed) runPrivacyCheck(baseline = true)
+            }
+            MainAction.DismissPrivacyBaseline -> _uiState.update { it.copy(privacy = it.privacy.copy(showBaselineConfirmation = false)) }
+            MainAction.ClearPrivacyBaseline -> {
+                cancelPrivacyCheck()
+                _uiState.update { it.copy(privacy = MainPrivacyState()) }
+            }
+            MainAction.CancelPrivacyCheck -> cancelPrivacyCheck()
+            is MainAction.PrivacyOverviewVisible -> {
+                privacyVisible = action.visible
+                if (!action.visible) {
+                    cancelPrivacyCheck()
+                    _uiState.update { it.copy(privacy = it.privacy.copy(showBaselineConfirmation = false)) }
+                }
+            }
+            is MainAction.ServiceCommandIssued -> _uiState.update { it.issueServiceCommand(action.kind, android.os.SystemClock.elapsedRealtime()) }
+            MainAction.RequestRestartConfirmation -> _uiState.update { it.copy(restartPromptGuid = it.selectedGuid) }
+            MainAction.DismissRestartConfirmation -> _uiState.update { it.copy(restartPromptGuid = null) }
+            MainAction.VpnPermissionDenied -> {
+                _uiState.update { it.copy(pendingCommand = null, connectionIssue = MainConnectionIssue.PERMISSION) }
+                toastError(R.string.forouz_permission_denied)
+            }
+            is MainAction.CreateFragmentVariant -> createFragmentVariant(action.guid, action.preset)
+            MainAction.TestCurrentServer -> testCurrentServerRealPing()
+            MainAction.LocateActiveProfile -> triggerLocateSelectedServer(uiState.value.activeTestProfileGuid() ?: uiState.value.selectedGuid)
+            MainAction.RefreshConnectionState -> {
+                _uiState.update { it.copy(connectionKnown = false) }
+                dataSource.refreshServiceState()
+            }
+            is MainAction.CopyAmneziaNative -> launchLoading {
+                if (dataSource.copyAmneziaNative(action.guid)) toastSuccess(R.string.toast_success)
+                else toastError(R.string.toast_failure)
+            }
             MainAction.Initialize -> initialize()
             MainAction.RefreshGroups -> setupGroupTab(forceRefresh = true)
             MainAction.TestAllServers -> testAllRealPing(true)
@@ -291,7 +410,17 @@ class MainViewModel(
             is MainAction.SelectServer -> updateSelectedGuid(action.guid)
             is MainAction.RemoveServer -> removeServerAndRefresh(action.guid)
             is MainAction.Search -> filterConfig(action.query)
-            is MainAction.ImportBatchConfig -> importBatchConfig(action.configText)
+            is MainAction.ImportBatchConfig -> previewImport(action.configText)
+            is MainAction.ConfirmImport -> {
+                val pending = pendingImport?.takeIf { it.first == action.id && uiState.value.importReview?.inspection?.canImport == true }
+                if (pending != null) {
+                    dismissImportReview()
+                    importBatchConfig(pending.second, pending.third)
+                }
+            }
+            MainAction.DismissImportReview -> dismissImportReview()
+            is MainAction.SubmitAmneziaCaptcha -> submitAmneziaCaptcha(action.answer)
+            MainAction.DismissAmneziaCaptcha -> dismissAmneziaCaptcha()
             MainAction.LocateHandled -> consumeLocateTarget()
             is MainAction.ShareQRCode -> {
                 val bitmap = dataSource.share2QRCode(action.guid)
@@ -302,8 +431,8 @@ class MainViewModel(
                 _uiState.update { it.copy(shareQRCodeBitmap = null) }
             }
 
+            MainAction.CancelServiceStart,
             MainAction.ToggleService,
-            MainAction.TestCurrentServer,
             MainAction.ImportQRcode,
             MainAction.ImportClipboard,
             MainAction.ImportConfigLocal,
@@ -315,6 +444,35 @@ class MainViewModel(
             is MainAction.ShareFullContent,
             is MainAction.OpenSubscriptionLink -> {
                 // Handled by Activity via its onAction lambda
+            }
+        }
+    }
+
+    private fun dismissImportReview() {
+        importInspectionJob?.cancel()
+        importInspectionId = null
+        pendingImport = null
+        _uiState.update { it.copy(importReview = null, isInspectingImport = false) }
+    }
+
+    private fun previewImport(text: String) {
+        dismissImportReview()
+        val id = java.util.UUID.randomUUID().toString()
+        val targetGroup = uiState.value.selectedGroupId
+        importInspectionId = id
+        _uiState.update { it.copy(isInspectingImport = true) }
+        importInspectionJob = viewModelScope.launch(defaultDispatcher) {
+            try {
+                val inspection = dataSource.inspectImport(text)
+                withContext(Dispatchers.Main.immediate) {
+                    if (importInspectionId != id) return@withContext
+                    pendingImport = if (inspection.canImport) Triple(id, text.trim().removePrefix("\uFEFF").trim(), targetGroup) else null
+                    _uiState.update { it.copy(importReview = MainImportReview(id, inspection, targetGroup), isInspectingImport = false) }
+                }
+            } catch (e: CancellationException) { throw e }
+            catch (e: Exception) {
+                LogUtil.e(AppConfig.TAG, "Main phase=import-preview", IllegalStateException(e.javaClass.simpleName))
+                withContext(Dispatchers.Main.immediate) { dismissImportReview(); toastError(R.string.toast_failure) }
             }
         }
     }
@@ -477,6 +635,7 @@ class MainViewModel(
                         selectedGuid = dataSource.getSelectServer(),
                     )
                 }
+                refreshHomeProfile()
                 groups.forEach { mutableServerGroupState(it.id) }
 
                 if (groups.isEmpty()) {
@@ -515,12 +674,64 @@ class MainViewModel(
     }
 
     // ---------- Business actions (coroutine-based) ----------
-    private fun importBatchConfig(configText: String) {
+    private var amneziaChallenge: com.v2ray.ang.core.amnezia.AmneziaGateway.CaptchaRequired? = null
+    private var amneziaImportGroup = ""
+
+    private fun showAmneziaCaptcha(challenge: com.v2ray.ang.core.amnezia.AmneziaGateway.CaptchaRequired) {
+        val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        android.graphics.BitmapFactory.decodeByteArray(challenge.image, 0, challenge.image.size, bounds)
+        if (bounds.outWidth !in 1..2048 || bounds.outHeight !in 1..2048) {
+            dismissAmneziaCaptcha()
+            toastError(R.string.toast_failure)
+            return
+        }
+        val image = android.graphics.BitmapFactory.decodeByteArray(challenge.image, 0, challenge.image.size)
+            ?: run { dismissAmneziaCaptcha(); toastError(R.string.toast_failure); return }
+        amneziaChallenge = challenge
+        _uiState.update { it.copy(amneziaCaptchaImage = image) }
+    }
+
+    private fun dismissAmneziaCaptcha() {
+        amneziaChallenge = null
+        _uiState.update { it.copy(amneziaCaptchaImage = null) }
+    }
+
+    private fun submitAmneziaCaptcha(answer: String) {
+        val challenge = amneziaChallenge ?: return
+        if (answer.isBlank() || answer.length > 64) return
+        val importGroup = amneziaImportGroup
+        dismissAmneziaCaptcha()
         launchLoading {
             withContext(ioDispatcher) {
                 try {
+                    val (count, _) = dataSource.resumeAmneziaImport(challenge, answer, importGroup)
+                    if (count > 0) {
+                        toast(dataSource.getString(R.string.title_import_config_count, count))
+                        setupGroupTab(forceRefresh = true)
+                    } else toastError(R.string.toast_failure)
+                } catch (e: com.v2ray.ang.core.amnezia.AmneziaGateway.CaptchaRequired) {
+                    showAmneziaCaptcha(e)
+                } catch (e: CancellationException) { throw e }
+                catch (e: Exception) {
+                    LogUtil.e(AppConfig.TAG, "Amnezia captcha retry failed", e)
+                    toastError(amneziaImportErrorResource(e))
+                }
+            }
+        }
+    }
+
+    private fun importBatchConfig(configText: String, groupId: String) {
+        dismissAmneziaCaptcha()
+        amneziaImportGroup = groupId
+        launchLoading {
+            withContext(ioDispatcher) {
+                try {
+                    if (groupId.isNotEmpty() && dataSource.getSubscriptionItem(groupId) == null) {
+                        toastError(R.string.forouz_import_group_changed)
+                        return@withContext
+                    }
                     val (count, countSub) = dataSource.importBatchConfig(
-                        configText, uiState.value.selectedGroupId, true
+                        configText, groupId, true
                     )
                     when {
                         count > 0 -> {
@@ -531,11 +742,13 @@ class MainViewModel(
                         countSub > 0 -> setupGroupTab(forceRefresh = true)
                         else -> toastError(R.string.toast_failure)
                     }
+                } catch (challenge: com.v2ray.ang.core.amnezia.AmneziaGateway.CaptchaRequired) {
+                    showAmneziaCaptcha(challenge)
                 } catch (cancelled: CancellationException) {
                     throw cancelled
                 } catch (e: Exception) {
                     LogUtil.e(AppConfig.TAG, "Failed to import batch config", e)
-                    toastError(R.string.toast_failure)
+                    toastError(amneziaImportErrorResource(e))
                 }
             }
         }
@@ -764,6 +977,8 @@ class MainViewModel(
     fun filterConfig(keyword: String) {
         if (keyword == keywordFilter) return
         keywordFilter = keyword
+        savedState["profile_query"] = keyword
+        _uiState.update { it.copy(searchQuery = keyword) }
         filterJob?.cancel()
         filterJob = viewModelScope.launch(defaultDispatcher) {
             delay(300)
@@ -777,12 +992,39 @@ class MainViewModel(
     }
 
     fun updateSelectedGuid(guid: String) {
-        dataSource.setSelectServer(guid)
-        _uiState.update { it.copy(selectedGuid = guid) }
+        selectionJob?.cancel()
+        selectionJob = viewModelScope.launch(ioDispatcher) {
+            try {
+                selectionMutex.withLock {
+                    if (dataSource.decodeServerConfig(guid) == null) return@withLock
+                    ensureActive()
+                    dataSource.setSelectServer(guid)
+                    withContext(Dispatchers.Main.immediate) { _uiState.update { it.copy(selectedGuid = guid) } }
+                }
+            } catch (e: CancellationException) { throw e }
+            catch (e: Exception) { LogUtil.e(AppConfig.TAG, "Main phase=select profile=$guid", IllegalStateException(e.javaClass.simpleName)) }
+        }
     }
 
     fun refreshSelectedGuid() {
         _uiState.update { it.copy(selectedGuid = dataSource.getSelectServer()) }
+    }
+
+    private fun refreshHomeProfile() {
+        homeProfileJob?.cancel()
+        val selected = uiState.value.selectedGuid
+        val active = uiState.value.activeTestProfileGuid()
+        _uiState.update { it.withHomeProfile(selected, null).withActiveHomeProfile(active, null) }
+        homeProfileJob = viewModelScope.launch(ioDispatcher) {
+            try {
+                val summaries = listOfNotNull(selected, active).distinct().associateWith { guid ->
+                    dataSource.decodeServerConfig(guid)?.let { homeProfile(guid, it, dataSource.decodeAffiliationInfo(guid)?.testDelayMillis) }
+                }
+                ensureActive()
+                _uiState.update { it.withHomeProfile(selected, summaries[selected]).withActiveHomeProfile(active, summaries[active]) }
+            } catch (e: CancellationException) { throw e }
+            catch (e: Exception) { LogUtil.e(AppConfig.TAG, "Main phase=home-metadata profile=${selected.orEmpty()}", IllegalStateException(e.javaClass.simpleName)) }
+        }
     }
 
     fun removeServerAndRefresh(guid: String) {
@@ -814,8 +1056,32 @@ class MainViewModel(
         }
     }
 
+    private fun createFragmentVariant(guid: String, preset: com.v2ray.ang.core.FragmentPreset) {
+        launchLoading {
+            try {
+                val created = withContext(ioDispatcher) { dataSource.createFragmentVariant(guid, preset) }
+                if (created == null) {
+                    toastError(R.string.lab_fragment_unavailable)
+                    return@launchLoading
+                }
+                withContext(ioDispatcher) { dataSource.setSelectedSubscriptionId(AppConfig.DEFAULT_SUBSCRIPTION_ID) }
+                // Reveal the local trial; selecting/connecting it remains a user action.
+                _uiState.update { it.copy(selectedGroupId = AppConfig.DEFAULT_SUBSCRIPTION_ID) }
+                setupGroupTab(forceRefresh = true)
+                toastSuccess(R.string.lab_fragment_saved)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                LogUtil.e(AppConfig.TAG, "Create fragment trial failed profile=$guid", e)
+                toastError(R.string.toast_failure)
+            }
+        }
+    }
+
     // ---------- Testing ----------
     fun cancelAllPing() {
+        currentProbeJob?.cancel()
+        currentProbeJob = null
         bulkTestJob?.cancel()
         bulkTestJob = null
         testRequests.cancelBulk()
@@ -828,7 +1094,7 @@ class MainViewModel(
     private fun resetTestStatus() {
         _uiState.update {
             it.copy(
-                isTesting = testRequests.isTesting,
+                isTesting = testRequests.isTesting, isCurrentTesting = testRequests.isCurrentTesting,
                 status = if (testRequests.isTesting) MainStatus.Testing
                 else if (it.isRunning) MainStatus.Connected else MainStatus.Disconnected
             )
@@ -843,14 +1109,16 @@ class MainViewModel(
             return
         }
         val serverGuids = servers.map { it.guid }
+        val resetGuids = servers.filter { resetDelayBeforeBatch(it.profile.configType, it.testDelayMillis) }
+            .map { it.guid }.toHashSet()
         mutableServerGroupState(groupId).update { current ->
             current.copy(
                 servers = current.servers.map { server ->
-                    if (server.testDelayMillis == 0L) server
+                    if (server.guid !in resetGuids || server.testDelayMillis == 0L) server
                     else server.copy(testDelayMillis = 0L)
                 },
                 rows = current.rows.map { row ->
-                    if (row.testDelayMillis == 0L) row
+                    if (row.guid !in resetGuids || row.testDelayMillis == 0L) row
                     else row.copy(testDelayMillis = 0L)
                 }
             )
@@ -870,8 +1138,7 @@ class MainViewModel(
         }
         bulkTestJob = viewModelScope.launch {
             withContext(ioDispatcher) {
-                dataSource.clearAllTestDelayResults(serverGuids)
-                val resetGuids = serverGuids.toHashSet()
+                dataSource.clearAllTestDelayResults(resetGuids.toList())
                 cacheMutex.withLock {
                     groupDataCache[groupId]?.let { cached ->
                         groupDataCache[groupId] = cached.map { server ->
@@ -892,10 +1159,25 @@ class MainViewModel(
     }
 
     fun testCurrentServerRealPing() {
-        if (!uiState.value.isRunning) return
-        val requestId = testRequests.beginCurrent()
-        _uiState.update { it.copy(isTesting = true, status = MainStatus.Testing) }
-        dataSource.testCurrentServerRealPing(requestId)
+        if (!uiState.value.canTestConnection()) return
+        val guid = uiState.value.activeTestProfileGuid() ?: return
+        val requestId = testRequests.beginCurrent(guid, uiState.value.connection.snapshot?.sessionId)
+        _uiState.update { it.copy(isTesting = true, isCurrentTesting = true, status = MainStatus.Testing) }
+        currentProbeJob?.cancel()
+        currentProbeJob = viewModelScope.launch(ioDispatcher) {
+            try { dataSource.testCurrentServerRealPing(requestId, guid) }
+            catch (e: CancellationException) { throw e }
+            catch (e: Exception) {
+                LogUtil.e(AppConfig.TAG, "Active connection probe RPC failed profile=$guid", e)
+                withContext(Dispatchers.Main.immediate) {
+                    if (testRequests.completeCurrent(requestId)) {
+                        _uiState.update { it.copy(connectivity = null) }
+                        resetTestStatus()
+                        toastError(R.string.toast_failure)
+                    }
+                }
+            }
+        }
     }
 
     private fun onTestsFinished(requestId: String) {
@@ -907,20 +1189,19 @@ class MainViewModel(
         }
     }
 
-    fun triggerLocateSelectedServer() {
-        val selected = dataSource.getSelectServer() ?: return
-        val profile = dataSource.decodeServerConfig(selected) ?: return
-        val groupId = profile.subscriptionId
-        if (_uiState.value.groups.none { it.id == groupId }) return
+    fun triggerLocateSelectedServer(guid: String? = uiState.value.selectedGuid) {
+        if (guid.isNullOrBlank()) return
         viewModelScope.launch(ioDispatcher) {
-            updateGroupUi(groupId, loadGroup(groupId))
-            if (_uiState.value.selectedGroupId != groupId) {
+            try {
+                val profile = dataSource.decodeServerConfig(guid) ?: return@launch
+                val groupId = profile.subscriptionId
+                if (uiState.value.groups.none { it.id == groupId }) return@launch
+                updateGroupUi(groupId, loadGroup(groupId))
+                ensureActive()
                 dataSource.setSelectedSubscriptionId(groupId)
-            }
-            val target = LocateTarget(groupId, selected)
-            _uiState.update {
-                it.copy(selectedGroupId = groupId, locateTarget = target)
-            }
+                _uiState.update { it.copy(selectedGroupId = groupId, locateTarget = LocateTarget(groupId, guid)) }
+            } catch (e: CancellationException) { throw e }
+            catch (e: Exception) { LogUtil.e(AppConfig.TAG, "Main phase=locate profile=$guid", IllegalStateException(e.javaClass.simpleName)) }
         }
     }
 
@@ -930,18 +1211,56 @@ class MainViewModel(
 
     // ---------- Running state ----------
     private fun updateRunningState(running: Boolean, clearTestingText: Boolean = true) {
-        if (!running || clearTestingText) testRequests.invalidateCurrent()
+        val daemonRunning = _uiState.value.connection.runningOr(running)
+        // A cancel may precede receiver registration. Never start here; repeat only the explicit stop intent.
+        if (_uiState.value.shouldRepeatExplicitStop(daemonRunning, android.os.SystemClock.elapsedRealtime()))
+            dataSource.sendMsg2Service(AppConfig.MSG_STATE_STOP, "")
+        if (!daemonRunning || clearTestingText) testRequests.invalidateCurrent()
         _uiState.update { state ->
             state.copy(
-                isRunning = running,
-                isTesting = testRequests.isTesting,
-                status = if (!clearTestingText && state.isRunning == running) state.status
-                else if (running) MainStatus.Connected else MainStatus.Disconnected
+                isRunning = daemonRunning,
+                connectionKnown = true,
+                pendingCommand = state.pendingCommand?.takeUnless { it.confirmed(state.connection.snapshot) },
+                connectivity = state.connectivity?.takeIf { daemonRunning && it.belongsTo(state.connection.snapshot) },
+                isTesting = testRequests.isTesting, isCurrentTesting = testRequests.isCurrentTesting,
+                status = if (!clearTestingText && state.isRunning == daemonRunning) state.status
+                else if (daemonRunning) MainStatus.Connected else MainStatus.Disconnected
             )
         }
     }
 
+    private fun cancelPrivacyCheck() {
+        privacyJob?.cancel()
+        privacyJob = null
+        _uiState.update { it.copy(privacy = it.privacy.cancel()) }
+    }
+
+    private fun runPrivacyCheck(baseline: Boolean) {
+        val target = uiState.value.privacyTarget() ?: return
+        if (!privacyVisible || target.vpn == baseline || uiState.value.privacy.requestId != null) return
+        val id = java.util.UUID.randomUUID().toString()
+        _uiState.update { it.copy(privacy = it.privacy.begin(id, target)) }
+        privacyJob = viewModelScope.launch {
+            try {
+                val reply = withContext(ioDispatcher) { dataSource.measurePrivacy(target) }
+                _uiState.update { it.copy(privacy = it.privacy.complete(id, target, it.privacyTarget(), reply)) }
+            } catch (e: CancellationException) {
+                _uiState.update { if (it.privacy.requestId == id) it.copy(privacy = it.privacy.cancel()) else it }
+                throw e
+            } catch (e: Exception) {
+                LogUtil.e(AppConfig.TAG, "Privacy observation UI", IllegalStateException(e.javaClass.simpleName))
+                _uiState.update { it.copy(privacy = it.privacy.complete(id, target, it.privacyTarget(),
+                    com.v2ray.ang.core.privacy.PrivacyProbeReply.Unavailable(com.v2ray.ang.core.privacy.PrivacyIssue.FAILED))) }
+            }
+        }
+    }
+
     override fun onCleared() {
+        privacyJob?.cancel()
+        homeProfileJob?.cancel()
+        selectionJob?.cancel()
+        dismissImportReview()
+        dismissAmneziaCaptcha()
         setupGroupJob?.cancel()
         preloadJob?.cancel()
         selectedGroupLoadJob?.cancel()
@@ -954,6 +1273,12 @@ class MainViewModel(
 
     // ---------- Factory ----------
     class Factory(private val application: Application, private val dataSource: MainDataSource) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
+            if (modelClass.isAssignableFrom(MainViewModel::class.java)) return MainViewModel(application, dataSource, extras.createSavedStateHandle()) as T
+            return create(modelClass)
+        }
+
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(MainViewModel::class.java)) {

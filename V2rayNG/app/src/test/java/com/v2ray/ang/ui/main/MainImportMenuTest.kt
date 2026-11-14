@@ -19,7 +19,7 @@ class MainImportMenuTest {
     fun regularMoreMenuContainsEveryActionInDisplayOrder() {
         assertEquals(
             ServerMenuAction.entries,
-            serverMenuActions(isComplexProfile = false, includeManagementActions = true),
+            serverMenuActions(isComplexProfile = false, includeManagementActions = true, supportsFragmentation = true),
         )
     }
 
@@ -39,5 +39,14 @@ class MainImportMenuTest {
             ServerMenuAction.Delete,
         )
         assertEquals(expected, serverMenuActions(isComplexProfile = true, includeManagementActions = true))
+    }
+
+    @Test fun fragmentTrialsRequireEligibleManagementMenuAndMapToDistinctPresets() {
+        val actions = ServerMenuAction.entries.filter { fragmentPreset(it) != null }
+        assertEquals(com.v2ray.ang.core.FragmentPreset.entries, actions.map { fragmentPreset(it) })
+        assertEquals(listOf(false, false, false), actions.map { it in serverMenuActions(false, false, true) })
+        assertEquals(listOf(false, false, false), actions.map { it in serverMenuActions(false, true, false) })
+        assertEquals(listOf(false, false, false), actions.map { it in serverMenuActions(true, true, true) })
+        actions.forEach { assertEquals(it.labelRes, fragmentPresetLabel(checkNotNull(fragmentPreset(it)))) }
     }
 }

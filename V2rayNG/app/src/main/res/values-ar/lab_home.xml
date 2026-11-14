@@ -1,0 +1,17 @@
+<resources>
+    <string name="lab_home">الاتصال</string>
+    <string name="lab_vpn_on">VPN قيد التشغيل</string>
+    <string name="lab_vpn_off">VPN متوقف</string>
+    <string name="lab_connected_title">متصل</string>
+    <string name="lab_ready_title">جاهز للاتصال</string>
+    <string name="lab_empty_hint">أضف إعدادًا لبدء الاتصال.</string>
+    <string name="lab_connection_hint">اتصل باستخدام الإعداد المحدد.</string>
+    <string name="lab_selected_profile">الإعداد المحدد</string>
+    <string name="lab_choose_profile">اختر إعدادًا</string>
+    <string name="lab_protocol">البروتوكول</string>
+    <string name="lab_last_delay">آخر اختبار تأخير</string>
+    <string name="lab_delay_ms">%1$d مللي ثانية</string>
+    <string name="lab_not_measured">لم يُقَس</string>
+    <string name="lab_test_connection">اختبار الاتصال</string>
+    <string name="awg_copy_native">نسخ إعداد AmneziaWG الأصلي</string>
+</resources>

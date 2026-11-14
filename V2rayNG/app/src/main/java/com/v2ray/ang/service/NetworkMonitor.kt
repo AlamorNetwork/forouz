@@ -12,6 +12,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 
 /**
  * Watches the network that carries the tunnel and reports topology changes.
@@ -32,9 +34,13 @@ class NetworkMonitor(
         const val HANDOVER_DEBOUNCE_MS = 1000L
     }
 
-    private var upstream: Network? = null
+    private val owner = SupervisorJob()
+    private val scope = CoroutineScope(owner + Dispatchers.IO)
+    @Volatile private var closed = false
+    private val lease = com.v2ray.ang.core.health.HandoverLease<Network>()
+    val isActive: Boolean get() = !closed && registered
     private var handoverJob: Job? = null
-    private var registered = false
+    @Volatile private var registered = false
 
     /**
      * Unfortunately registerDefaultNetworkCallback is going to return our VPN interface:
@@ -55,20 +61,20 @@ class NetworkMonitor(
 
     private val callback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
-            val previous = upstream
-            upstream = network
+            if (!isActive) return
+            val admission = lease.available(network) ?: return
+            if (!isActive) return
             onUnderlyingNetworksChanged(arrayOf(network))
-            if (previous != null && previous != network) {
-                scheduleHandover(network)
-            }
+            if (admission.first) scheduleHandover(network, admission.second)
         }
 
         override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
-            // it's a good idea to refresh capabilities
-            onUnderlyingNetworksChanged(arrayOf(network))
+            if (isActive && lease.owns(network)) onUnderlyingNetworksChanged(arrayOf(network))
         }
 
         override fun onLost(network: Network) {
+            if (!isActive || !lease.lost(network)) return
+            handoverJob?.cancel()
             onUnderlyingNetworksChanged(null)
         }
     }
@@ -77,12 +83,13 @@ class NetworkMonitor(
      * Starts watching. Safe to call more than once, only the first call registers.
      */
     fun register() {
-        if (registered) return
+        if (registered || closed) return
+        registered = true
         try {
             connectivity.requestNetwork(request, callback)
-            registered = true
         } catch (e: Exception) {
-            LogUtil.e(AppConfig.TAG, "NetworkMonitor: Failed to request network", e)
+            registered = false
+            LogUtil.e(AppConfig.TAG, "NetworkMonitor mode=shared phase=register", e)
         }
     }
 
@@ -90,29 +97,31 @@ class NetworkMonitor(
      * Stops watching and drops the tracked state. Safe to call more than once.
      */
     fun unregister() {
+        closed = true
+        owner.cancel()
         handoverJob?.cancel()
         handoverJob = null
-        upstream = null
+        lease.close()
         if (!registered) return
         registered = false
         try {
             connectivity.unregisterNetworkCallback(callback)
         } catch (e: Exception) {
-            LogUtil.w(AppConfig.TAG, "NetworkMonitor: Failed to unregister callback", e)
+            LogUtil.w(AppConfig.TAG, "NetworkMonitor mode=shared phase=unregister", e)
         }
     }
 
-    private fun scheduleHandover(network: Network) {
-        LogUtil.i(AppConfig.TAG, "NetworkMonitor: Upstream is now $network")
+    private fun scheduleHandover(network: Network, token: Long) {
+        LogUtil.i(AppConfig.TAG, "NetworkMonitor mode=shared phase=schedule-handover")
         handoverJob?.cancel()
-        handoverJob = CoroutineScope(Dispatchers.IO).launch {
+        handoverJob = scope.launch {
             try {
                 delay(HANDOVER_DEBOUNCE_MS)
-                onHandover()
+                if (isActive && lease.owns(network, token)) onHandover()
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                LogUtil.e(AppConfig.TAG, "NetworkMonitor: Failed to handle upstream change", e)
+                LogUtil.e(AppConfig.TAG, "NetworkMonitor mode=shared phase=handover", e)
             }
         }
     }

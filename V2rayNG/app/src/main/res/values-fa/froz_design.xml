@@ -1,0 +1,5 @@
+<resources>
+    <string name="froz_traffic_title">ترافیک زنده</string>
+    <string name="froz_lab_setup">تنظیمات آزمایش</string>
+    <string name="froz_lab_results">نتیجه‌ها</string>
+</resources>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lab_duration">%1$02d:%2$02d:%3$02d</string>
+    <string name="lab_notification_rates">↓ %1$s  •  ↑ %2$s</string>
+    <string name="lab_notification_permission">VPN icazəsi lazımdır. Qoşulmaq üçün tətbiqi açın.</string>
+    <string name="lab_notification_disconnected">Bağlantı kəsilib. Yenidən qoşulmaq üçün Qoşul düyməsinə toxunun.</string>
+    <string name="lab_open_app">Tətbiqi aç</string>
+    <string name="lab_traffic_waiting">Trafik nümunəsi gözlənilir…</string>
+    <string name="lab_traffic_unavailable">Bu bağlantı üçün trafik statistikası mövcud deyil.</string>
+    <string name="lab_download">Endirmə</string>
+    <string name="lab_upload">Yükləmə</string>
+    <string name="lab_total_bytes">Cəmi %1$s</string>
+    <string name="lab_chart_description">90 saniyədə Xray trafiki. Endirmə %1$s, yükləmə %2$s.</string>
+    <string name="lab_traffic_window">90 saniyə • Miqyas %1$s</string>
+    <string name="lab_traffic_scope">Xray proksi və birbaşa trafiki. Bütöv xətt: endirmə; kəsik: yükləmə. Bayt sürətidir, sürət testi deyil.</string>
+    <string name="lab_uptime">Qoşulma müddəti %1$s</string>
+</resources>

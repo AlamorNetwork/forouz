@@ -1,0 +1,10 @@
+<resources>
+    <string name="awg_connection_failed">AmneziaWG সংযোগ ব্যর্থ হয়েছে। কনফিগারেশন এবং VPN অনুমতি পরীক্ষা করুন।</string>
+    <string name="awg_vpn_only">AmneziaWG বর্তমানে শুধু VPN মোড সমর্থন করে।</string>
+    <string name="awg_edit_import">এই প্রোফাইল সম্পাদনা করতে কনফিগারেশন ফাইল পরিবর্তন করে আবার আমদানি করুন।</string>
+    <string name="awg_captcha_title">Amnezia যাচাইকরণ</string>
+    <string name="awg_captcha_image">যাচাইকরণ ছবি</string>
+    <string name="awg_captcha_answer">ছবির কোড লিখুন</string>
+    <string name="awg_no_compatible_server">এই অ্যাকাউন্টের জন্য Amnezia-তে উপযুক্ত AWG সার্ভার এখন নেই। পরে চেষ্টা করুন বা সেবাদাতার সাথে যোগাযোগ করুন।</string>
+    <string name="awg_configuration_limit">এই Amnezia অ্যাকাউন্টের কনফিগারেশন সীমা পূর্ণ হয়েছে। সেবাদাতার সাথে যোগাযোগ করুন।</string>
+</resources>

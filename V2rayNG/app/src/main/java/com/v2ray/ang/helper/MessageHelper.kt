@@ -18,6 +18,23 @@ import java.io.Serializable
 object MessageHelper {
     const val EXTRA_REQUEST_ID = "requestId"
 
+    internal fun sendHealthCommand(ctx: Context, request: com.v2ray.ang.core.health.HealthRequest?) {
+        val intent = Intent(ctx, com.v2ray.ang.service.ConnectionHealthService::class.java).apply {
+            action = if (request == null) "health.stop" else "health.start"
+            request?.let { putExtra("request", it) }
+        }
+        if (request != null) ContextCompat.startForegroundService(ctx, intent) else ctx.startService(intent)
+    }
+
+
+    internal fun sendLaboratoryCommand(ctx: Context, request: com.v2ray.ang.core.lab.LabStartRequest?) {
+        val intent = Intent(ctx, com.v2ray.ang.service.LaboratoryService::class.java).apply {
+            action = if (request == null) "lab.cancel" else "lab.start"
+            request?.let { putExtra("request", it) }
+        }
+        if (request != null) ContextCompat.startForegroundService(ctx, intent) else ctx.startService(intent)
+    }
+
     /**
      * Sends a message to the service.
      *
