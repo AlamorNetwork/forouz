@@ -10,21 +10,25 @@ Updated 14 November 2026. Implemented features and planned work are separate.
 - Own-repository compatible-APK update discovery.
 - Manual IP observation with explicit route provenance; Xray DNS leak status remains unknown.
 
-## Next development: R1d
+## Current priority: connection tools before advanced Laboratory
 
-1. Optional periodic monitoring of inactive Xray profiles through isolated probes, with timing and traffic budgets.
-2. History and ranking of fresh successful samples, while retaining the active tunnel.
-3. Controlled selection/rotation among healthy candidates. Native AWG inactive testing and recovery require a separate design.
+The base Laboratory is already included in 1.0.1. Revised priorities for the next development cycle:
 
-The existing 10 MB test remains opt-in with an explicit consumption estimate.
+1. **P1 — CDN scanner and optimizer (R2a–b):** start with Cloudflare/CloudFront, then add GCore/Fastly after frontend and service compatibility checks. Measure the selected profile on the current network; preserve Host/SNI/path and authentication. Automatic application is bounded by explicit opt-in, with backup and undo.
+2. **P2 — Fragment and Mux calibration (R3a):** compare the original baseline and compatible patterns with repeated real-delay, stability and optional throughput measurements. Classic Mux and XHTTP XMUX need separate policies; the original baseline may win.
+3. **P3 — Root reliability and capability-gated Shizuku:** improve authorization, owned-state cleanup and recovery first. Root and shell backends have different capabilities and require separate device acceptance.
+4. **P4 — Iran Direct preset and optional weekly Geo refresh (R8a):** verified sources, validated atomic file replacement, last-known-good rollback and preserved custom routing rules.
+5. **Then R1d:** periodic isolated inactive-profile monitoring, history/ranking and controlled selection/rotation. AWG inactive testing and recovery require a separate design.
+
+[Execution boundaries and acceptance criteria](AUTO-SCANNER-OPTIMIZER.md). These features are planned, not additions to the existing 1.0.1 APK. The optional 10 MB test keeps an explicit consumption estimate.
 
 ## Following stages
 
-- R2: CDN identification and bounded endpoint tests, starting with Cloudflare/CloudFront. Candidate IPs use a copied profile and explicit user request/confirmation; preserve Host/SNI/path and credentials.
-- R3: Transport-aware DPI/AWG experiments, compatibility checks and rollback.
+- R2: CDN identification and endpoint testing is promoted into P1; extend adapters after same-service compatibility is demonstrated.
+- R3: Fragment/Mux calibration is promoted into P2; remaining transport/AWG experiments retain compatibility checks and rollback.
 - R4: WARP/WireGuard/MASQUE integration after dependency and lifecycle review.
 - R5–R7: Separate compatible DNS tunnel, Naive/SSH and Tor/Psiphon adapters with appropriate server/provider support.
-- R8: Routing, DNS, backup, native statistics and UX completion.
+- R8: Iran Geo preset/refresh is promoted into P4; remaining routing, DNS, backup, statistics and UX follow later.
 - R9: Optional research transports, subject to platform and security feasibility.
 - R10: Opt-in free-profile sources after provenance, permissions, refresh limits and provider compatibility are established.
 
