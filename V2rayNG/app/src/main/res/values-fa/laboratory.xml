@@ -38,7 +38,7 @@
     <string name="lab_issue_config">اجرای کانفیگ مستقل ممکن نشد.</string>
     <string name="lab_issue_http">سرور فایل پاسخ HTTP 200 نداد.</string>
     <string name="lab_issue_body">پاسخ، فایل فشرده‌نشدهٔ دقیقاً ۱۰ مگابایتی نبود.</string>
-    <string name="lab_issue_tls">اعتبارسنجی گواهی TLS ناموفق بود.</string>
+    <string name="lab_issue_tls">اتصال HTTPS در TLS ناموفق بود؛ این پیام به‌تنهایی علت گواهی را مشخص نمی‌کند.</string>
     <string name="lab_issue_timeout">زمان دانلود تمام شد.</string>
     <string name="lab_issue_io">درخواست کامل نشد.</string>
     <string name="lab_network_wifi">شبکه: وای‌فای</string>

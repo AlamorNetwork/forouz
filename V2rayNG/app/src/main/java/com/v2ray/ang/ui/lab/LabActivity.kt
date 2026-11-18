@@ -11,6 +11,9 @@ class LabActivity : BaseComponentActivity() {
     private val model: LabViewModel by viewModels {
         viewModelFactory { initializer { LabViewModel(createSavedStateHandle(), LabRepository(applicationContext)) } }
     }
+    private val cdn: CdnViewModel by viewModels {
+        viewModelFactory { initializer { CdnViewModel(createSavedStateHandle(), CdnRepository(applicationContext)) } }
+    }
 
-    @Composable override fun ScreenContent() { LabScreen(model, ::finish) }
+    @Composable override fun ScreenContent() { LabScreen(model, cdn, ::finish) }
 }

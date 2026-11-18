@@ -34,3 +34,7 @@ Download feed: [edge-candidates.json](https://raw.githubusercontent.com/AlamorNe
 - [Fastly public IP list](https://api.fastly.com/public-ip-list) and [domain-associated routing](https://www.fastly.com/documentation/guides/concepts/routing-traffic-to-fastly/)
 - [GCore origin allowlisting](https://support.gcore.com/hc/en-us/articles/16360355991057-4xx-errors)
 - [RIPE announced-prefixes API](https://stat.ripe.net/docs/data-api/api-endpoints/announced-prefixes)
+
+## Offline and mirror consumers
+
+The Windows companion embeds the complete catalog snapshot and also distributes its JSON. Offline snapshot dates stay unchanged; ASN candidates and origin ranges retain their original roles. The app supports an explicit HTTPS mirror URL, with no credentials/query/fragment or redirects. Host the exact validated file at a stable direct URL; do not forge generated_at when refresh fails. Preserve the last valid file atomically. A separately operated Iran mirror is not deployed by this repository. Android automatic scans reject expired catalogs; exact manual IP scans require no catalog.

@@ -2,13 +2,13 @@
 
 An independent Android network client derived from [v2rayNG](https://github.com/2dust/v2rayNG), with Xray and AmneziaWG support, a redesigned interface and an optional connection laboratory.
 
-[Download FOROUZ 1.0.1](https://github.com/AlamorNetwork/forouz/releases/tag/v1.0.1) · [Privacy notes](PRIVACY.md) · [Roadmap](docs/ROADMAP.md) · [Release notes](docs/RELEASE-1.0.1.md)
+[Download FOROUZ 1.0.2](https://github.com/AlamorNetwork/forouz/releases/tag/v1.0.2) · [Privacy notes](PRIVACY.md) · [Roadmap](docs/ROADMAP.md) · [Release notes](docs/RELEASE-1.0.2.md)
 
 ## Install
 
-Use `FOROUZ_1.0.1-playstore-release_arm64-v8a.apk` for most recent ARM64 phones. Separate APKs are available for armeabi-v7a, x86, x86_64 and universal, in Playstore and Fdroid distributions. Bring your own compatible profiles.
+Use `FOROUZ_1.0.2-playstore-release_arm64-v8a.apk` for ARM64 phones (Android7+). This release supplies the tested Playstore ARM64 APK; other ABI/distribution packages remain available in the [1.0.1 release](https://github.com/AlamorNetwork/forouz/releases/tag/v1.0.1). Bring your own compatible profiles. Windows Setup/Portable edge tools are separate companion utilities, not a full Windows VPN client.
 
-The public package is `ir.alamornetwork.forouz` (Fdroid: `.fdroid`). Public 1.0.1 upgrades public 1.0.0 using the same permanent signature. Earlier experimental packages are separate installations; transfer profiles with a backup.
+The public package is `ir.alamornetwork.forouz` (Fdroid: `.fdroid`). Public1.0.2 upgrades the preceding public package using the same permanent signature. Earlier experimental packages are separate installations; transfer profiles with a backup.
 
 Verify downloads against the release's `SHA256SUMS.txt`. The permanent APK certificate SHA-256 is:
 
@@ -23,6 +23,9 @@ ed606e4fdaaa98f988d6dcf38dabf263672743711e2f5dd5f57b7cbddc2930f4
 - FOROUZ dark/light interface, active versus selected profile state, live Xray traffic and notification controls.
 - Optional Laboratory: transport grouping, bounded sequential tests, explicit 10 MB download testing and persistent history. Optional active health monitoring includes limited Xray recovery.
 - Manual Overview IP observation and an update checker using this repository's compatible releases.
+
+- Independent [CDN edge scanner](docs/CDN-SCANNER.md): direct TCP80/TCP443/verified TLS, editable HTTPS catalog source, offline manual IP list and IP-only copy.
+- [Windows companion](tools/windows-edge-list/README.fa.md): full bundled offline ranges, bounded direct edge sampling and TXT export; no VPN driver.
 
 ## Privacy monitor scope
 

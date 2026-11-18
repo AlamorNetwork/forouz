@@ -31,6 +31,7 @@ internal sealed interface LabAction {
     data object Cancel : LabAction
     data object ShowHistory : LabAction
     data object ShowConfigs : LabAction
+    data object ShowCdn : LabAction
     data class OpenReport(val id: String) : LabAction
     data object CloseReport : LabAction
     data object ShowHealth : LabAction
@@ -46,7 +47,7 @@ internal sealed interface LabAction {
 internal data class LabPreview(val request: LabStartRequest, val eligible: Int)
 internal data class LabUiState(val groupId: String = "", val url: String = LabHttpProbe.DEFAULT_URL,
     val data: LabData? = null, val preview: LabPreview? = null, val error: Int? = null,
-    val healthPage: Boolean = false, val healthRunId: String? = null,
+    val healthPage: Boolean = false, val healthRunId: String? = null, val cdnPage: Boolean = false,
     val healthInterval: Int = 60, val healthRecovery: Boolean = false,
     val healthPreview: HealthRequest? = null, val healthStarting: Boolean = false, val healthError: Int? = null,
     val loading: Boolean = true, val starting: Boolean = false, val now: Long = System.currentTimeMillis(),
@@ -68,7 +69,7 @@ internal class LabViewModel(private val saved: SavedStateHandle, private val rep
         LogUtil.e(AppConfig.TAG, "Lab UI phase=$operation", IllegalStateException(error.javaClass.simpleName))
     }, private val computationDispatcher: CoroutineDispatcher = Dispatchers.Default) : ViewModel() {
     private val state = MutableStateFlow(LabUiState(groupId = saved["group_id"] ?: "", url = saved["url"] ?: LabHttpProbe.DEFAULT_URL,
-        historyPage = saved["history_page"] ?: false, historyRunId = saved["history_run_id"],
+        historyPage = saved["history_page"] ?: false, historyRunId = saved["history_run_id"], cdnPage = saved["cdn_page"] ?: false,
         healthPage = saved["health_page"] ?: false, healthRunId = saved["health_run_id"],
         healthInterval = saved.get<Int>("health_interval")?.takeIf { it in listOf(30, 60, 120) } ?: 60,
         healthRecovery = saved["health_recovery"] ?: false))
@@ -145,6 +146,10 @@ internal class LabViewModel(private val saved: SavedStateHandle, private val rep
                 operations.withLock {
                     try {
                         when (action) {
+                            LabAction.ShowCdn -> {
+                                saved["cdn_page"] = true
+                                state.update { it.copy(cdnPage = true, preview = null) }
+                            }
                             LabAction.ShowHealth -> {
                                 saved["health_page"] = true
                                 state.update { it.copy(healthPage = true, preview = null) }
@@ -223,11 +228,12 @@ internal class LabViewModel(private val saved: SavedStateHandle, private val rep
     }
 
     private fun navigateHistory(page: Boolean, id: String?) {
+        saved["cdn_page"] = false
         saved["health_page"] = false
         saved["history_page"] = page
         saved["history_run_id"] = id
         historyNamesFor = null
-        state.update { it.copy(healthPage = false, healthPreview = null, historyPage = page, historyRunId = id, historyNames = emptyMap(), historyGroups = emptyMap(), preview = null,
+        state.update { it.copy(cdnPage = false, healthPage = false, healthPreview = null, historyPage = page, historyRunId = id, historyNames = emptyMap(), historyGroups = emptyMap(), preview = null,
             error = it.error?.takeIf { error -> error == R.string.lab_history_error }) }
     }
 

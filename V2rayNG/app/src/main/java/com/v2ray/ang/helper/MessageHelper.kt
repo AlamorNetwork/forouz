@@ -14,9 +14,45 @@ import com.v2ray.ang.service.CoreTestService
 import com.v2ray.ang.service.SubscriptionUpdateService
 import com.v2ray.ang.util.LogUtil
 import java.io.Serializable
+import com.v2ray.ang.dto.ConnectionSnapshot
+import com.v2ray.ang.extension.serializable
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.withTimeoutOrNull
 
 object MessageHelper {
     const val EXTRA_REQUEST_ID = "requestId"
+
+    /** A one-shot daemon query; receiving this never starts/restarts a VPN or registers a lasting client. */
+    internal suspend fun requestConnectionSnapshot(ctx: Context): ConnectionSnapshot? {
+        val reply = CompletableDeferred<ConnectionSnapshot?>()
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent?.getIntExtra("key", 0) == AppConfig.MSG_CONNECTION_SNAPSHOT) {
+                    try { reply.complete(intent.serializable<ConnectionSnapshot>("content")) }
+                    catch (e: Exception) { LogUtil.e(AppConfig.TAG, "Snapshot mode=UI phase=decode", IllegalStateException(e.javaClass.simpleName)); reply.complete(null) }
+                }
+            }
+        }
+        ContextCompat.registerReceiver(ctx, receiver, android.content.IntentFilter(AppConfig.BROADCAST_ACTION_ACTIVITY),
+            ContextCompat.RECEIVER_NOT_EXPORTED)
+        try {
+            val acknowledged = CompletableDeferred<Boolean>()
+            sendMsg2ServiceForResult(ctx, AppConfig.MSG_REGISTER_CLIENT, "") { handled -> acknowledged.complete(handled) }
+            return withTimeoutOrNull(2_500) { if (acknowledged.await()) reply.await() else null }
+        } finally {
+            reply.cancel()
+            try { ctx.unregisterReceiver(receiver) }
+            catch (e: Exception) { LogUtil.e(AppConfig.TAG, "Snapshot mode=UI phase=unregister", IllegalStateException(e.javaClass.simpleName)) }
+        }
+    }
+
+    internal fun sendCdnCommand(ctx: Context, request: com.v2ray.ang.core.cdn.CdnRequest?) {
+        val intent = Intent(ctx, com.v2ray.ang.service.CdnScannerService::class.java).apply {
+            action = if (request == null) "cdn.cancel" else "cdn.start"
+            request?.let { putExtra("request", it) }
+        }
+        if (request != null) ContextCompat.startForegroundService(ctx, intent) else ctx.startService(intent)
+    }
 
     internal fun sendHealthCommand(ctx: Context, request: com.v2ray.ang.core.health.HealthRequest?) {
         val intent = Intent(ctx, com.v2ray.ang.service.ConnectionHealthService::class.java).apply {

@@ -13,8 +13,8 @@ android {
         applicationId = "ir.alamornetwork.forouz"
         minSdk = 24
         targetSdk = 37
-        versionCode = 766
-        versionName = "1.0.1"
+        versionCode = 777
+        versionName = "1.0.2"
 
         val abiFilterList = (properties["ABI_FILTERS"] as? String)?.split(';')
         splits {

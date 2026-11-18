@@ -75,10 +75,17 @@ object CoreNativeManager {
      * @return Delay in milliseconds, or -1 if test failed
      */
     fun measureOutboundDelay(config: String, testUrl: String): Long {
+        return measureOutboundDelayDiagnosed(config, testUrl) {}
+    }
+
+    /** Keeps native error text local; callers receive only a fixed diagnostic code. */
+    internal fun measureOutboundDelayDiagnosed(config: String, testUrl: String, onFailure: (NativeDelayFailure) -> Unit): Long {
         return try {
             Libv2ray.measureOutboundDelay(config, testUrl)
         } catch (e: Exception) {
-            LogUtil.e(AppConfig.TAG, "Failed to measure outbound delay", e)
+            // Native errors can embed the test URL or exported outbound credentials.
+            LogUtil.e(AppConfig.TAG, "Failed to measure outbound delay", IllegalStateException(e.javaClass.simpleName))
+            onFailure(NativeDelayFailure.classify(e))
             -1L
         }
     }

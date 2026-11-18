@@ -38,7 +38,7 @@
     <string name="lab_issue_config">The isolated configuration could not start.</string>
     <string name="lab_issue_http">The file server did not return HTTP 200.</string>
     <string name="lab_issue_body">The response was not an uncompressed file of exactly 10 MB.</string>
-    <string name="lab_issue_tls">TLS certificate validation failed.</string>
+    <string name="lab_issue_tls">HTTPS failed in TLS. This result alone does not identify a certificate validation problem.</string>
     <string name="lab_issue_timeout">Download timed out.</string>
     <string name="lab_issue_io">The request could not be completed.</string>
     <string name="lab_network_wifi">Network: Wi-Fi</string>

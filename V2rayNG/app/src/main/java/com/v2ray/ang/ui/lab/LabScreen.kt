@@ -20,9 +20,14 @@ import com.v2ray.ang.ui.compose.FrozPanel
 import com.v2ray.ang.ui.compose.FrozSectionTitle
 import com.v2ray.ang.ui.compose.FrozStatusLabel
 
-@Composable internal fun LabScreen(model: LabViewModel, onBack: () -> Unit) {
+@Composable internal fun LabScreen(model: LabViewModel, cdn: CdnViewModel, onBack: () -> Unit) {
     val state by model.uiState.collectAsStateWithLifecycle()
     val action = model::onAction
+    BackHandler(enabled = state.cdnPage) { action(LabAction.ShowConfigs) }
+    if (state.cdnPage) {
+        CdnScreen(cdn) { action(LabAction.ShowConfigs) }
+        return
+    }
     val historyBack: () -> Unit = {
         action(if (state.historyRunId != null) LabAction.CloseReport else LabAction.ShowConfigs)
     }
@@ -41,7 +46,10 @@ import com.v2ray.ang.ui.compose.FrozStatusLabel
     val profiles = state.data?.profiles.orEmpty()
     val latest = state.latest
     val colors = MaterialTheme.colorScheme
-    Scaffold(topBar = { AppTopBar(title = stringResource(R.string.lab_title), onBackClick = onBack) }) { padding ->
+    Scaffold(topBar = { Column {
+        AppTopBar(title = stringResource(R.string.lab_title), onBackClick = onBack)
+        LabToolsTabs(false, {}, { action(LabAction.ShowCdn) })
+    } }) { padding ->
         Box(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding), contentAlignment = Alignment.TopCenter) {
             LazyColumn(Modifier.widthIn(max = 760.dp).fillMaxWidth().imePadding(),
                 contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {

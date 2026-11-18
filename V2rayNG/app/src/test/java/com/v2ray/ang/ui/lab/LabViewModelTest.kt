@@ -9,6 +9,13 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 class LabViewModelTest {
+    @Test fun `CDN tab navigation does not dispatch laboratory tests and restores the selected page`() = withModel { vm, source ->
+        vm.onAction(LabAction.ShowCdn)
+        assertTrue(vm.uiState.value.cdnPage)
+        assertTrue(source.sends.isEmpty())
+        vm.onAction(LabAction.ShowConfigs)
+        assertFalse(vm.uiState.value.cdnPage)
+    }
     private class Source : LabDataSource {
         var fail = false
         var data = LabData(listOf(LabGroup("", "all"), LabGroup("sub", "subscription")), listOf(

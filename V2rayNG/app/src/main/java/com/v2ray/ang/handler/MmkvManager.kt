@@ -55,6 +55,37 @@ internal fun persistLocalTrial(
 
 object MmkvManager {
 
+    // A separate versioned document keeps CDN trials out of legacy 10 MB laboratory history.
+    private val cdnStorage by lazy { MMKV.mmkvWithID("CDN_SCAN_V1", MMKV.MULTI_PROCESS_MODE) }
+    internal fun readCdnFeed(): String? = cdnStorage.decodeString("feed")
+    internal fun readCdnFeedUrl(): String = cdnStorage.decodeString("feed_url") ?: com.v2ray.ang.core.cdn.CdnPolicy.FEED
+    internal fun saveCdnFeedUrl(url: String) {
+        val value = cdnFeedUrl(url)
+        if (!cdnStorage.encode("feed_url", value)) throw ProfileStorageException("CDN source write failed")
+    }
+    internal fun saveCdnFeed(raw: String) {
+        require(raw.length <= 2_000_000)
+        if (!cdnStorage.encode("feed", raw)) throw ProfileStorageException("CDN feed write failed")
+    }
+    internal fun readCdnRun(): com.v2ray.ang.core.cdn.CdnRun? = synchronized(cdnStorage) {
+        cdnStorage.lock()
+        try { com.v2ray.ang.core.cdn.CdnRecords.decode(cdnStorage.decodeString("run")) }
+        finally { cdnStorage.unlock() }
+    }
+    internal fun saveCdnRun(run: com.v2ray.ang.core.cdn.CdnRun) = synchronized(cdnStorage) {
+        cdnStorage.lock()
+        try {
+            if (!cdnStorage.encode("run", com.v2ray.ang.core.cdn.CdnRecords.encode(run)))
+                throw ProfileStorageException("CDN result write failed")
+        } finally { cdnStorage.unlock() }
+    }
+    internal fun createCdnTrial(guid: String, revision: String, address: String, label: String, guard: () -> Unit): String = withProfileIndexLock {
+        guard()
+        val current = requireNotNull(decodeServerConfig(guid))
+        val copy = com.v2ray.ang.core.cdn.CdnPolicy.trial(current, revision, address)
+        createLocalTrialLocked(copy.copy(remarks = current.remarks + " · " + label))
+    }
+
     // Health has an independent bounded document; legacy 10 MB reports remain unchanged.
     private val healthStorage by lazy { MMKV.mmkvWithID("HEALTH_V1", MMKV.MULTI_PROCESS_MODE) }
     internal fun readHealthRuns(): List<com.v2ray.ang.core.health.HealthRun> = synchronized(healthStorage) {
@@ -91,6 +122,10 @@ object MmkvManager {
     }
 
     fun createLocalTrial(profile: ProfileItem): String = withProfileIndexLock {
+        createLocalTrialLocked(profile)
+    }
+
+    private fun createLocalTrialLocked(profile: ProfileItem): String {
         require(profile.subscriptionId.isEmpty())
         val guid = Utils.getUuid()
         check(!profileFullStorage.containsKey(guid))
@@ -106,7 +141,7 @@ object MmkvManager {
             },
             removePayload = { profileFullStorage.remove(guid) },
         )
-        guid
+        return guid
     }
 
     //region private

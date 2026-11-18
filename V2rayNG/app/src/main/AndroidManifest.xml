@@ -54,6 +54,8 @@
         android:usesCleartextTraffic="true">
 
         <activity android:name=".ui.lab.LabActivity" android:exported="false" />
+        <service android:name=".service.CdnScannerService" android:exported="false"
+            android:foregroundServiceType="dataSync" android:process=":cdn" />
         <service android:name=".service.ConnectionHealthService" android:exported="false"
             android:process=":RunSoLibV2RayDaemon" android:foregroundServiceType="dataSync" />
         <service android:name=".service.LaboratoryService" android:exported="false"
